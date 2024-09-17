@@ -1,0 +1,123 @@
+{
+  "name": "promptis",
+  "publisher": "kiririmode",
+  "displayName": "Promptis",
+  "description": "Tool for prompt chaining",
+  "version": "1.0.0-rc.1",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fintan-contents/promptis/"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "promptis.promptis",
+        "name": "promptis",
+        "fullName": "promptis",
+        "description": "Meow! What can I teach you?",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "codereviewCodeStandards",
+            "description": "Review the Code With Code Standards"
+          },
+          {
+            "name": "codereviewFunctional",
+            "description": "Review the Code With Functional Requirements"
+          },
+          {
+            "name": "codereviewNonFunctional",
+            "description": "Review the Code With Non Functional Requirements"
+          },
+          {
+            "name": "drowDiagrams",
+            "description": "Dwaw Diagrams from the Code"
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Promptis",
+      "properties": {
+        "codeReview.codeStandardPath": {
+          "type": "string",
+          "description": "Absolute path of the directory storing code review prompts (from a coding convention perspective)"
+        },
+        "codeReview.functionalPath": {
+          "type": "string",
+          "description": "Absolute path of the directory storing code review prompts (from a functional perspective)"
+        },
+        "codeReview.nonFunctionalPath": {
+          "type": "string",
+          "description": "Absolute path of the directory storing code review prompts (from a non-functional perspective)"
+        },
+        "reverseEngineering.promptsPath": {
+          "type": "string",
+          "description": "Absolute path of the directory storing prompts for reverse engineering"
+        },
+        "drawDiagrams.promptsPath": {
+          "type": "string",
+          "description": "Absolute path of the directory for prompts used in diagram generation"
+        },
+        "chat.outputPath": {
+          "type": "string",
+          "description": "Absolute path of the directory for outputting chat content backups"
+        },
+        "prompt.excludeFilePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the minimatch README (https://github.com/isaacs/minimatch) for writable patterns."
+        }
+      }
+    },
+    "commands": []
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test --coverage --coverage-output --coverage-reporter=html",
+    "build": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@types/sinon": "^17.0.3",
+    "@types/vscode": "^1.93.0",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.1.0",
+    "esbuild": "^0.23.1",
+    "eslint": "^9.9.1",
+    "npm-run-all": "^4.1.5",
+    "prettier-plugin-organize-imports": "^4.0.0",
+    "sinon": "^19.0.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "minimatch": "^10.0.1",
+    "moment": "^2.30.1"
+  }
+}

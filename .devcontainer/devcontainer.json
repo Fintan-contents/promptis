@@ -1,0 +1,32 @@
+{
+    "name": "Node.js Dev Container",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "ms-azuretools.vscode-docker",
+                "connor4312.esbuild-problem-matchers",
+                "ms-vscode.extension-test-runner",
+                "exiasr.hadolint",
+                "GitHub.copilot",
+                "GitHub.copilot-chat"
+            ]
+        }
+    },
+    "postCreateCommand": "npm install",
+    "forwardPorts": [
+        3000
+    ],
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+    ],
+    "remoteUser": "node"
+}
