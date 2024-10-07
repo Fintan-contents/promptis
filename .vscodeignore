@@ -18,3 +18,9 @@ vsc-extension-quickstart.md
 coverage
 prompts
 TODO.md
+.openapi*
+.openapi-generator/*
+openapi*
+*.gif
+*.bkp
+prompt_demo/*

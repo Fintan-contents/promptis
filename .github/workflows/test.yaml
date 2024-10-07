@@ -1,4 +1,4 @@
-name: 
+name: Test
 on:
   push:
     branches:
@@ -23,12 +23,28 @@ jobs:
         node-version: '20.x'
         cache: 'npm'
 
-    - run: npm install
+    - name: Install Dependencies
+      run: npm install
 
-    - run: xvfb-run -a npm test
+    - name: Run Tests
+      run: npm run test
       if: runner.os == 'Linux'
 
-    - name: Upload coverage
-      uses: actions/upload-artifact@v4
+    - name: Generate coverage badge
+      uses: jaywcjlove/coverage-badges-cli@main
       with:
-        path: coverage
+        source: coverage/coverage-summary.json
+        output: coverage/badge.svg
+
+    - name: Convert SVG to PNG
+      uses: joergnapp/convert-svg-to-png@v1.0
+      with:
+        svgpath: 'coverage/'
+        pngpath: 'coverage/'
+
+    - name: Push coverage badge
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./coverage
+        destination_dir: coverage

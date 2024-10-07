@@ -278,7 +278,7 @@ suite("processSelectedContent Test Suite", function () {
       },
     });
 
-    const promptFiles = [path.normalize(`${__dirname}/../../prompts/01_readability.md`)];
+    const promptFiles = [path.normalize(`${__dirname}/../../prompts/codestandards/01_readability.md`)];
     const model = {
       sendRequest: sinon.stub().resolves({ text: ["response"] }),
     } as unknown as vscode.LanguageModelChat;
@@ -292,7 +292,7 @@ suite("processContent Test Suite", function () {
   test("processContent should handle blocked request error", async function () {
     const content = "test content";
     const contentFilePath = "test/path";
-    const promptFiles = [path.normalize(`${__dirname}/../../prompts/01_readability.md`)];
+    const promptFiles = [path.normalize(`${__dirname}/../../prompts/codestandards/01_readability.md`)];
     const model = {
       sendRequest: sinon.stub().rejects(vscode.LanguageModelError.Blocked("Blocked")),
     } as unknown as vscode.LanguageModelChat;
@@ -306,7 +306,7 @@ suite("processContent Test Suite", function () {
   test("processContent should handle no permissions error", async function () {
     const content = "test content";
     const contentFilePath = "test/path";
-    const promptFiles = [path.normalize(`${__dirname}/../../prompts/01_readability.md`)];
+    const promptFiles = [path.normalize(`${__dirname}/../../prompts/codestandards/01_readability.md`)];
     const model = {
       sendRequest: sinon.stub().rejects(vscode.LanguageModelError.NoPermissions("No permissions")),
     } as unknown as vscode.LanguageModelChat;
@@ -320,7 +320,7 @@ suite("processContent Test Suite", function () {
   test("processContent should handle not found error", async function () {
     const content = "test content";
     const contentFilePath = "test/path";
-    const promptFiles = [path.normalize(`${__dirname}/../../prompts/01_readability.md`)];
+    const promptFiles = [path.normalize(`${__dirname}/../../prompts/codestandards/01_readability.md`)];
     const model = {
       sendRequest: sinon.stub().rejects(vscode.LanguageModelError.NotFound("Not found")),
     } as unknown as vscode.LanguageModelChat;
@@ -334,7 +334,7 @@ suite("processContent Test Suite", function () {
   test("processContent should handle generic error", async function () {
     const content = "test content";
     const contentFilePath = "test/path";
-    const promptFiles = [path.normalize(`${__dirname}/../../prompts/01_readability.md`)];
+    const promptFiles = [path.normalize(`${__dirname}/../../prompts/codestandards/01_readability.md`)];
     const model = {
       sendRequest: sinon.stub().rejects(new Error("Generic error")),
     } as unknown as vscode.LanguageModelChat;
@@ -348,7 +348,7 @@ suite("processContent Test Suite", function () {
   test("processContent should process content and write to stream", async function () {
     const content = "test content";
     const contentFilePath = "test/path";
-    const promptFiles = [path.normalize(`${__dirname}/../../prompts/01_readability.md`)];
+    const promptFiles = [path.normalize(`${__dirname}/../../prompts/codestandards/01_readability.md`)];
     const model = {
       sendRequest: sinon.stub().resolves({ text: ["response"] }),
     } as unknown as vscode.LanguageModelChat;

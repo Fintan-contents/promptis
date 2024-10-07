@@ -132,3 +132,10 @@ dist
 .DS_Store
 *.vsix
 .vscode
+
+# draw.io
+*.bkp
+
+# license files
+licenses
+prompt_demo

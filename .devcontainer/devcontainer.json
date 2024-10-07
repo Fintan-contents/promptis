@@ -1,5 +1,11 @@
 {
     "name": "Node.js Dev Container",
+    "features": {
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "22",
+            "installMaven": true
+        }
+    },
     "build": {
         "dockerfile": "Dockerfile",
         "context": ".."

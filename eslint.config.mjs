@@ -3,6 +3,7 @@ import tsParser from "@typescript-eslint/parser";
 
 export default [{
     files: ["**/*.ts"],
+    ignores: ["src/openapi/**"],
 }, {
     plugins: {
         "@typescript-eslint": typescriptEslint,
@@ -13,7 +14,6 @@ export default [{
         ecmaVersion: 2022,
         sourceType: "module",
     },
-
     rules: {
         "@typescript-eslint/naming-convention": ["warn", {
             selector: "import",

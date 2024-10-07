@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
   const promptis = vscode.chat.createChatParticipant(PARTICIPANT_ID, chatHandler);
 
   // Participantのアイコンパスを設定する
-  promptis.iconPath = vscode.Uri.joinPath(context.extensionUri, "images", "icon.gif");
+  promptis.iconPath = vscode.Uri.joinPath(context.extensionUri, "images", "icon.png");
 
   // コマンドをVSCodeに登録し、それぞれのコマンド実行時の動作を設定
   for (const [key, value] of Object.entries(commandMap)) {

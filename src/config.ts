@@ -24,7 +24,12 @@ export class Config {
     if (!Config.isWorkspaceAvailabile()) {
       return undefined;
     }
-    return vscode.workspace.getConfiguration().get<string>(key);
+    const value = vscode.workspace.getConfiguration().get<string>(key);
+    if (!value) {
+      vscode.commands.executeCommand("workbench.action.openSettings", key);
+      vscode.window.showErrorMessage(`Path is not defined for setting key: ${key}`);
+    }
+    return value;
   }
 
   /**
@@ -80,6 +85,16 @@ export class Config {
    * @returns チャット出力ディレクトリのパス、または未定義
    */
   static getChatOutputDirPath(): string | undefined {
-    return Config.getPath("chat.outputPath");
+    // 未設定はユーザが意図しているケースがあるため、
+    // 未設定の場合に設定画面を表示するgetPathは使わない
+    return vscode.workspace.getConfiguration().get<string>("chat.outputPath");
+  }
+
+  /**
+   * Promptisのテレメトリが有効になっているかどうかを取得します。
+   * @returns テレメトリが有効な場合はtrue、それ以外はfalse
+   */
+  static getTelemetryEnabled(): boolean {
+    return vscode.workspace.getConfiguration().get<boolean>("telemetry.enable", false);
   }
 }

@@ -1,9 +1,10 @@
 {
   "name": "promptis",
-  "publisher": "kiririmode",
+  "publisher": "tis",
   "displayName": "Promptis",
-  "description": "Tool for prompt chaining",
-  "version": "1.0.0-rc.1",
+  "description": "Promptis is a tool that enhances coding efficiency and consistency by semi-automating the execution of predefined prompts through GitHub Copilot Chat.",
+  "version": "1.0.0-rc.5",
+  "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -23,7 +24,7 @@
         "id": "promptis.promptis",
         "name": "promptis",
         "fullName": "promptis",
-        "description": "Meow! What can I teach you?",
+        "description": "プロンプトを示すコマンドと、その対象を#fileや#selection等で入力する",
         "isSticky": true,
         "commands": [
           {
@@ -39,8 +40,8 @@
             "description": "Review the Code With Non Functional Requirements"
           },
           {
-            "name": "drowDiagrams",
-            "description": "Dwaw Diagrams from the Code"
+            "name": "drawDiagrams",
+            "description": "Draw Diagrams from the Code"
           }
         ]
       }
@@ -50,27 +51,28 @@
       "properties": {
         "codeReview.codeStandardPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing code review prompts (from a coding convention perspective)"
+          "description": "Absolute path of the directory storing code review prompts (from a coding convention perspective)",
+          "order": 1
         },
         "codeReview.functionalPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing code review prompts (from a functional perspective)"
+          "description": "Absolute path of the directory storing code review prompts (from a functional perspective)",
+          "order": 2
         },
         "codeReview.nonFunctionalPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing code review prompts (from a non-functional perspective)"
+          "description": "Absolute path of the directory storing code review prompts (from a non-functional perspective)",
+          "order": 3
         },
         "reverseEngineering.promptsPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing prompts for reverse engineering"
+          "description": "Absolute path of the directory storing prompts for reverse engineering",
+          "order": 4
         },
         "drawDiagrams.promptsPath": {
           "type": "string",
-          "description": "Absolute path of the directory for prompts used in diagram generation"
-        },
-        "chat.outputPath": {
-          "type": "string",
-          "description": "Absolute path of the directory for outputting chat content backups"
+          "description": "Absolute path of the directory for prompts used in diagram generation",
+          "order": 5
         },
         "prompt.excludeFilePatterns": {
           "type": "array",
@@ -78,28 +80,47 @@
             "type": "string"
           },
           "default": [],
-          "description": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the minimatch README (https://github.com/isaacs/minimatch) for writable patterns."
+          "markdownDescription": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the [minimatch README](https://github.com/isaacs/minimatch) for writable patterns.",
+          "order": 6
+        },
+        "chat.outputPath": {
+          "type": "string",
+          "description": "Absolute path of the directory for outputting chat content backups",
+          "order": 7
+        },
+        "telemetry.enable": {
+          "type": "boolean",
+          "description": "Enable telemetry to help improve the extension",
+          "default": true,
+          "order": 8
         }
       }
     },
     "commands": []
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm-run-all -s compile:*",
+    "compile:openapi": "openapi-generator-cli generate -g typescript-axios -i openapi.yaml -o src/openapi/ -c openapi_generator_config.yaml",
+    "compile:src": "npm run check-types && npm run lint && node esbuild.js --production",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src",
-    "test": "vscode-test --coverage --coverage-output --coverage-reporter=html",
-    "build": "vsce package"
+    "lint": "eslint src && openapi-generator-cli validate -i openapi.yaml",
+    "test": "run-script-os",
+    "test:linux": "xvfb-run -a vscode-test --coverage --coverage-output --coverage-reporter html json-summary",
+    "test:win32:darwin": "vscode-test --coverage --coverage-output --coverage-reporter html json-summary",
+    "test-versions": ".github/scripts/test_vscode_versions.sh",
+    "build:license": "license-checker-rseidelsohn --excludePackages promptis --unknown --csv --csvComponentPrefix --production --onlyAllow 'ISC;MIT;Apache-2.0' --files licenses/",
+    "build:vsix": "vsce package",
+    "build": "npm-run-all -s build:license build:vsix"
   },
   "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.14.0",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
     "@types/sinon": "^17.0.3",
@@ -111,13 +132,18 @@
     "@vscode/vsce": "^3.1.0",
     "esbuild": "^0.23.1",
     "eslint": "^9.9.1",
+    "license-checker-rseidelsohn": "^4.4.2",
     "npm-run-all": "^4.1.5",
     "prettier-plugin-organize-imports": "^4.0.0",
+    "run-script-os": "^1.1.6",
     "sinon": "^19.0.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
     "minimatch": "^10.0.1",
     "moment": "^2.30.1"
+  },
+  "mocha": {
+    "timeout": 5000
   }
 }

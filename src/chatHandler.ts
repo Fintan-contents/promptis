@@ -2,6 +2,7 @@ import fs from "fs";
 import moment from "moment";
 import path from "path";
 import * as vscode from "vscode";
+import { postUsage } from "./api";
 import { FileChatResponseStream } from "./chatutil";
 import { Config } from "./config";
 import { extractTargetFiles, findPromptFiles } from "./util";
@@ -14,7 +15,7 @@ const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
   ["codereviewFunctional", Config.getCodeReviewFunctionalPath],
   ["codereviewNonFunctional", Config.getCodeReviewNonFunctionalPath],
   ["reverseEngineeringPromptPath", Config.getReverseEngineeringPromptPath],
-  ["drowDiagrams", Config.getDrawDiagramsPromptPath],
+  ["drawDiagrams", Config.getDrawDiagramsPromptPath],
 ]);
 
 /**
@@ -53,6 +54,8 @@ export const chatHandler: vscode.ChatRequestHandler = async (
     return createErrorResponse("No command specified", stream);
   }
   console.log(`Command: ${command}`);
+
+  await postUsage(command);
 
   // コマンドに対応するプロンプトの格納ディレクトリを取得する。
   const promptDir = getPromptDirectory(command);
@@ -200,61 +203,57 @@ export async function processContent(
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
 ) {
-  // チャット内容保存ディレクトリを取得。有効な値が存在している場合は、ファイルに保存するようにする
-  const outputDirPath = Config.getChatOutputDirPath();
-  if (outputDirPath && outputDirPath.length > 0) {
-    // ResponseStream をラップして、ファイルに保存するようにする
-    stream = new FileChatResponseStream(stream, makeChatFilePath(outputDirPath, contentFilePath));
-  }
+  for (const promptFile of promptFiles) {
+    const promptContent = fs.readFileSync(promptFile, "utf8");
+    const messages = [
+      vscode.LanguageModelChatMessage.User(promptContent),
+      vscode.LanguageModelChatMessage.User(content),
+    ];
 
-  try {
-    for (const promptFile of promptFiles) {
-      const promptContent = fs.readFileSync(promptFile, "utf8");
-      const messages = [
-        vscode.LanguageModelChatMessage.User(promptContent),
-        vscode.LanguageModelChatMessage.User(content),
-      ];
-
-      try {
-        stream.markdown(`\n## ${path.basename(promptFile)}\n\n`);
-
-        // プロンプトを送信し、GitHub Copilot の AI モデルから応答を受信、出力する
-        const res = await model.sendRequest(messages, {}, token);
-        for await (const fragment of res.text) {
-          stream.markdown(fragment);
-        }
-      } catch (error) {
-        if (error instanceof vscode.LanguageModelError) {
-          switch (error.code) {
-            case vscode.LanguageModelError.Blocked().code:
-              console.error("Request blocked:", error);
-              stream.markdown("Request blocked");
-              break;
-
-            case vscode.LanguageModelError.NoPermissions().code:
-              console.error("No permissions:", error);
-              stream.markdown("No permissions");
-              break;
-
-            case vscode.LanguageModelError.NotFound().code:
-              console.error("Not found:", error);
-              stream.markdown("Not found");
-              break;
-
-            default:
-              console.error("Error processing content:", error.cause);
-              stream.markdown(`Error processing content: ${error.cause}`);
-          }
-        }
-        console.error("Error processing content:", error);
-        stream.markdown(`\nError processing content: ${error}`);
-      } finally {
-        stream.markdown("\n---\n");
+    try {
+      // チャット内容保存ディレクトリを取得。有効な値が存在している場合は、ファイルに保存するようにする
+      const outputDirPath = Config.getChatOutputDirPath();
+      if (outputDirPath && outputDirPath.length > 0) {
+        // ResponseStream をラップして、ファイルに保存するようにする
+        stream = new FileChatResponseStream(stream, makeChatFilePath(outputDirPath, promptFile, contentFilePath));
       }
-    }
-  } finally {
-    if (stream instanceof FileChatResponseStream) {
-      stream.writeToFile();
+      stream.markdown(`## Prompt file: ${path.basename(promptFile)}\n\n`);
+
+      // プロンプトを送信し、GitHub Copilot の AI モデルから応答を受信、出力する
+      const res = await model.sendRequest(messages, {}, token);
+      for await (const fragment of res.text) {
+        stream.markdown(fragment);
+      }
+    } catch (error) {
+      if (error instanceof vscode.LanguageModelError) {
+        switch (error.code) {
+          case vscode.LanguageModelError.Blocked().code:
+            console.error("Request blocked:", error);
+            stream.markdown("Request blocked");
+            break;
+
+          case vscode.LanguageModelError.NoPermissions().code:
+            console.error("No permissions:", error);
+            stream.markdown("No permissions");
+            break;
+
+          case vscode.LanguageModelError.NotFound().code:
+            console.error("Not found:", error);
+            stream.markdown("Not found");
+            break;
+
+          default:
+            console.error("Error processing content:", error.cause);
+            stream.markdown(`Error processing content: ${error.cause}`);
+        }
+      }
+      console.error("Error processing content:", error);
+      stream.markdown(`Error processing content: ${error}`);
+    } finally {
+      stream.markdown("\n\n");
+      if (stream instanceof FileChatResponseStream) {
+        stream.writeToFile();
+      }
     }
   }
 }
@@ -263,13 +262,16 @@ export async function processContent(
  * チャット内容の保存先となるファイルパスを生成する
  *
  * @param {string} dirPath - 出力先ディレクトリのパス
+ * @param {string} promptPath - プロンプトファイルのパス
  * @param {string} sourceFilePath - 処理対象ファイルのパス
  * @returns {string} 生成したファイルパス
  */
-export function makeChatFilePath(dirPath: string, sourceFilePath: string) {
-  const basename = path.basename(sourceFilePath, path.extname(sourceFilePath));
+export function makeChatFilePath(dirPath: string, promptPath: string, sourceFilePath: string): string {
+  const srcBasename = path.basename(sourceFilePath, path.extname(sourceFilePath));
+  const promptBasename = path.basename(promptPath, path.extname(promptPath));
   const timestamp = moment().format("YYYYMMDD-HHmmss");
-  return path.join(dirPath, `${basename}_${timestamp}.md`);
+
+  return path.join(dirPath, `${srcBasename}_${promptBasename}_${timestamp}.md`);
 }
 
 export function createErrorResponse(message: string, stream: vscode.ChatResponseStream): IPromptisChatResult {

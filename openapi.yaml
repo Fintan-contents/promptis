@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  title: Promptis Usage API
+  description: |
+    このAPIはPromptisの利用状況を収集するためのAPIです
+  contact:
+    name: TIS 開発基盤センター 次世代開発標準チーム
+    email: gai_dev_standard@ml.tis.co.jp
+  version: 1.0.0-alpha
+# servers:
+# TODO: ドメイン名を取得したら記述する
+#  - url:
+#  - description: Production server
+paths:
+  /usage:
+    post:
+      summary: Promptisのコマンド実行状況を収集します
+      description: |
+        Promptisがactivateされるタイミング、および、コマンドが実行されるタイミングでこのAPIが呼び出される。
+        このAPIでは、個人情報に該当する情報を収集しないように注意すること
+      operationId: postUsage
+      requestBody:
+        description: |
+          リクエストボディは以下のプロパティを持つJSONオブジェクトであること
+          - apiKind: "activate"、"command"、"test"のいずれか
+          - command: "codereviewCodeStandards" などのコマンド名
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - apiKind
+                - command
+                - language
+                - vscodeVersion
+                - os
+                - message
+                - extensionId
+                - extensionVersion
+                - machineId
+              properties:
+                apiKind:
+                  enum:
+                    - activate
+                    - command
+                    - test
+                  type: string
+                command:
+                  type: string
+                  example: "codereviewCodeStandards"
+                language:
+                  type: string
+                  example: "ja"
+                vscodeVersion:
+                  type: string
+                  example: "1.94.1"
+                os:
+                  type: string
+                  example: "linux"
+                extensionId:
+                  type: string
+                  example: "tis.promptis"
+                extensionVersion:
+                  type: string
+                  example: "1.0.0"
+                machineId:
+                  type: string
+                  example: "1234567890"
+      responses:
+        "200":
+          description: APIの呼び出しに成功した場合
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usage data collected"
+        "400":
+          description: Bad Request
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/problem"
+      tags:
+        - usage
+      x-amazon-apigateway-integration:
+        uri: arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/${log_usage}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+components:
+  schemas:
+    problem:
+      description: |
+        API呼び出しに問題が発生した場合のエラーレスポンス。RFC7807に準拠する
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+          description: 問題のタイプを識別するURI
+        title:
+          type: string
+          description: 問題の簡潔な説明
+        status:
+          type: integer
+          description: HTTPステータスコード
+        detail:
+          type: string
+          description: 問題の詳細な説明
+        instance:
+          type: string
+          format: uri
+          description: 問題が発生した特定のリソースを示すURI
+      required:
+        - type
+      additionalProperties: true
