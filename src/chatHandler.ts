@@ -219,7 +219,7 @@ export async function processContent(
       ];
 
       try {
-        stream.markdown(`\n## ${path.basename(promptFile)}\n\n`);
+        stream.markdown(`## Prompt file: ${path.basename(promptFile)}\n\n`);
 
         // プロンプトを送信し、GitHub Copilot の AI モデルから応答を受信、出力する
         const res = await model.sendRequest(messages, {}, token);
@@ -250,9 +250,9 @@ export async function processContent(
           }
         }
         console.error("Error processing content:", error);
-        stream.markdown(`\nError processing content: ${error}`);
+        stream.markdown(`Error processing content: ${error}`);
       } finally {
-        stream.markdown("\n---\n");
+        stream.markdown("\n\n");
       }
     }
   } finally {
