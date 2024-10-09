@@ -99,6 +99,7 @@
     "test": "run-script-os",
     "test:linux": "xvfb-run -a vscode-test --coverage --coverage-output --coverage-reporter=html",
     "test:win32:darwin": "vscode-test --coverage --coverage-output --coverage-reporter=html",
+    "test-versions": ".github/scripts/test_vscode_versions.sh",
     "build": "vsce package"
   },
   "devDependencies": {
