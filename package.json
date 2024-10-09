@@ -50,27 +50,28 @@
       "properties": {
         "codeReview.codeStandardPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing code review prompts (from a coding convention perspective)"
+          "description": "Absolute path of the directory storing code review prompts (from a coding convention perspective)",
+          "order": 1
         },
         "codeReview.functionalPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing code review prompts (from a functional perspective)"
+          "description": "Absolute path of the directory storing code review prompts (from a functional perspective)",
+          "order": 2
         },
         "codeReview.nonFunctionalPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing code review prompts (from a non-functional perspective)"
+          "description": "Absolute path of the directory storing code review prompts (from a non-functional perspective)",
+          "order": 3
         },
         "reverseEngineering.promptsPath": {
           "type": "string",
-          "description": "Absolute path of the directory storing prompts for reverse engineering"
+          "description": "Absolute path of the directory storing prompts for reverse engineering",
+          "order": 4
         },
         "drawDiagrams.promptsPath": {
           "type": "string",
-          "description": "Absolute path of the directory for prompts used in diagram generation"
-        },
-        "chat.outputPath": {
-          "type": "string",
-          "description": "Absolute path of the directory for outputting chat content backups"
+          "description": "Absolute path of the directory for prompts used in diagram generation",
+          "order": 5
         },
         "prompt.excludeFilePatterns": {
           "type": "array",
@@ -78,12 +79,19 @@
             "type": "string"
           },
           "default": [],
-          "markdownDescription": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the [minimatch README](https://github.com/isaacs/minimatch) for writable patterns."
+          "markdownDescription": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the [minimatch README](https://github.com/isaacs/minimatch) for writable patterns.",
+          "order": 6
+        },
+        "chat.outputPath": {
+          "type": "string",
+          "description": "Absolute path of the directory for outputting chat content backups",
+          "order": 7
         },
         "telemetry.enable": {
           "type": "boolean",
           "description": "Enable telemetry to help improve the extension",
-          "default": true
+          "default": true,
+          "order": 8
         }
       }
     },
