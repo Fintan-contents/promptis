@@ -24,7 +24,12 @@ export class Config {
     if (!Config.isWorkspaceAvailabile()) {
       return undefined;
     }
-    return vscode.workspace.getConfiguration().get<string>(key);
+    const value = vscode.workspace.getConfiguration().get<string>(key);
+    if (!value) {
+      vscode.commands.executeCommand("workbench.action.openSettings", key);
+      vscode.window.showErrorMessage(`Path is not defined for setting key: ${key}`);
+    }
+    return value;
   }
 
   /**
