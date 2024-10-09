@@ -1,0 +1,9 @@
+.openapi-generator-ignore
+apis/DefaultApi.ts
+apis/index.ts
+index.ts
+models/PostUsage200Response.ts
+models/PostUsageRequest.ts
+models/Problem.ts
+models/index.ts
+runtime.ts

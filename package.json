@@ -1,6 +1,6 @@
 {
   "name": "promptis",
-  "publisher": "kiririmode",
+  "publisher": "tis",
   "displayName": "Promptis",
   "description": "Tool for prompt chaining",
   "version": "1.0.0-rc.2",
@@ -78,19 +78,25 @@
             "type": "string"
           },
           "default": [],
-          "description": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the minimatch README (https://github.com/isaacs/minimatch) for writable patterns."
+          "markdownDescription": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the [minimatch README](https://github.com/isaacs/minimatch) for writable patterns."
+        },
+        "telemetry.enable": {
+          "type": "boolean",
+          "description": "Enable telemetry to help improve the extension",
+          "default": true
         }
       }
     },
     "commands": []
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm-run-all -s compile:*",
+    "compile:openapi": "openapi-generator-cli generate -g typescript-axios -i openapi.yaml -o src/openapi/ -c openapi_generator_config.yaml",
+    "compile:src": "npm run check-types && npm run lint && node esbuild.js --production",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -124,5 +130,8 @@
   "dependencies": {
     "minimatch": "^10.0.1",
     "moment": "^2.30.1"
+  },
+  "mocha": {
+    "timeout": 5000
   }
 }

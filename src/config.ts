@@ -82,4 +82,12 @@ export class Config {
   static getChatOutputDirPath(): string | undefined {
     return Config.getPath("chat.outputPath");
   }
+
+  /**
+   * Promptisのテレメトリが有効になっているかどうかを取得します。
+   * @returns テレメトリが有効な場合はtrue、それ以外はfalse
+   */
+  static getTelemetryEnabled(): boolean {
+    return vscode.workspace.getConfiguration().get<boolean>("telemetry.enable", false);
+  }
 }

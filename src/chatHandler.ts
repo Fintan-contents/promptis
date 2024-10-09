@@ -2,6 +2,7 @@ import fs from "fs";
 import moment from "moment";
 import path from "path";
 import * as vscode from "vscode";
+import { postUsage } from "./api";
 import { FileChatResponseStream } from "./chatutil";
 import { Config } from "./config";
 import { extractTargetFiles, findPromptFiles } from "./util";
@@ -53,6 +54,8 @@ export const chatHandler: vscode.ChatRequestHandler = async (
     return createErrorResponse("No command specified", stream);
   }
   console.log(`Command: ${command}`);
+
+  await postUsage(command);
 
   // コマンドに対応するプロンプトの格納ディレクトリを取得する。
   const promptDir = getPromptDirectory(command);

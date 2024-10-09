@@ -1,0 +1,6 @@
+axiosVersion: 1.7.7
+sortModelPropertiesByRequiredFlag: true
+sortParamsByRequiredFlag: true
+supportsES6: true
+useSingleRequestParameter: true
+withInterfaces: true

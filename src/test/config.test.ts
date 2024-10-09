@@ -78,5 +78,19 @@ suite("Config Test Suite", () => {
       const result = Config.getChatOutputDirPath();
       assert.strictEqual(result, "chat/output/dir/path");
     });
+
+    test("should return true if telemetry is enabled using Config class", function () {
+      const getStub = mockGetConfiguration().get as sinon.SinonStub;
+      getStub.withArgs("telemetry.enable").returns(true);
+      const result = Config.getTelemetryEnabled();
+      assert.strictEqual(result, true);
+    });
+
+    test("should return false if telemetry is disabled using Config class", function () {
+      const getStub = mockGetConfiguration().get as sinon.SinonStub;
+      getStub.withArgs("telemetry.enable").returns(false);
+      const result = Config.getTelemetryEnabled();
+      assert.strictEqual(result, false);
+    });
   });
 });
