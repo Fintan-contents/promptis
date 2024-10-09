@@ -2,8 +2,8 @@
   "name": "promptis",
   "publisher": "tis",
   "displayName": "Promptis",
-  "description": "Tool for prompt chaining",
-  "version": "1.0.0-rc.2",
+  "description": "Promptis is a tool that enhances coding efficiency and consistency by semi-automating the execution of predefined prompts through GitHub Copilot Chat.",
+  "version": "1.0.0-rc.3",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -23,7 +23,7 @@
         "id": "promptis.promptis",
         "name": "promptis",
         "fullName": "promptis",
-        "description": "Meow! What can I teach you?",
+        "description": "プロンプトを示すコマンドと、その対象を#fileや#selection等で入力する",
         "isSticky": true,
         "commands": [
           {
