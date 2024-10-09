@@ -104,3 +104,7 @@ Telemetry transmission can be disabled in user settings.
 - Supports the latest version of VS Code and up to two previous versions.
 - Bugs and feature requests for this extension are accepted in Issues.
 Release Notes
+
+## License
+
+[Apache-2.0 License](./LICENSE)

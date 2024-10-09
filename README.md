@@ -107,4 +107,8 @@ Chatウィンドウから @promptis に対して指示（コマンド）を出�
 - VS Codeの最新バージョンを含め２世代前までのバージョンをサポートします
 - 本Extensionのバグや機能要望については、[Issues](https://github.com/Fintan-contents/promptis/issues)にて受け付けています
 
+## License
+
+[Apache-2.0 License](./LICENSE)
+
 ## Release Notes
