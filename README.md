@@ -28,9 +28,9 @@ Promptisは、これらの問題を解決するために、GitHub Copilot Chat�
 
 ### インターネット経由でインストールする場合
 
-[Extensions for Visual Studio Code](https://marketplace.visualstudio.com/vscode)のPromptis[^1]からインストールしてください。
+[Extensions for Visual Studio Code](https://marketplace.visualstudio.com/vscode)のPromptisからインストールしてください。
 
-[^1]: TODO:Publish次第、リンクを貼る
+- TODO:Publish次第、リンクを貼る
 
 ### インターネットに接続できない端末にインストールする場合
 
@@ -93,9 +93,7 @@ Chatウィンドウから @promptis に対して指示（コマンド）を出�
 | OS | ユーザのOS | `linux` |
 | 本拡張のID | 本拡張のID | `tis.promptis` |
 | 本拡張のバージョン | 本拡張のバージョン | `1.0.0` |
-| マシンID | VS Codeをインストールしたマシンを識別するID[^2] | `3917c36ba8b94f2521fda9b5f94b783364a838148a87e5cfa3506eb6690e69a5` |
-
-[^2]: マシンIDは、ユーザのプライバシーを保護するため、VS Codeが生成するハッシュ化された値を使用しています。
+| マシンID | VS Codeをインストールしたマシンを識別するID。ユーザのプライバシーを保護するため、VS Codeが生成するハッシュ化された値を使用。| `3917c36ba8b94f2521fda9b5f94b783364a838148a87e5cfa3506eb6690e69a5` |
 
 なお、テレメトリ送信はユーザ設定で無効化できます。
 
