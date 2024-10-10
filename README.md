@@ -34,8 +34,10 @@ Promptisは、これらの問題を解決するために、GitHub Copilot Chat�
 
 ### インターネットに接続できない端末にインストールする場合
 
-[Release](https://github.com/Fintan-contents/promptis/releases)ページから、Extensionの実体である`.vsix`ファイルをダウンロードしてください。VS Codeへのインストールは、VS Codeの「拡張機能」メニューの「VSIX からのインストール」から可能です。
-詳細は[Install from a VSIX](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix)を参照してください。
+1. インターネットに接続できる端末を用いて、[Release](https://github.com/Fintan-contents/promptis/releases)ページからExtensionの実体である`.vsix`ファイルをダウンロードしてください。
+2. ダウンロードした`.vsix`ファイルをインターネットに接続できない端末に配布してください。
+3. 接続できない端末において、VS Codeの「拡張機能」メニューの「VSIX からのインストール」から`vsix`ファイルをインストールしてください。
+    - 詳細は[Install from a VSIX](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix)を参照してください。
 
 ## Usage
 

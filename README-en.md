@@ -31,7 +31,10 @@ Please install from Promptis on [Extensions for Visual Studio Code](https://mark
 
 ### Installing on a Device Without Internet Access
 
-Please install from the [Release](https://github.com/Fintan-contents/promptis/releases) page.
+1. Using a device with internet access, download the `.vsix` file, which is the actual extension, from the [Release](https://github.com/Fintan-contents/promptis/releases) page.
+2. Distribute the downloaded `.vsix` file to the device without internet access.
+3. On the device without internet access, install the `vsix` file from the "Extensions" menu in VS Code by selecting "Install from VSIX".
+    - For more details, refer to [Install from a VSIX](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix).
 
 ## Usage
 
