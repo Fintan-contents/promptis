@@ -97,15 +97,16 @@ This extension collects usage data and sends telemetry to our server for the pur
 
 Telemetry transmission can be disabled in user settings.
 
-- To disable telemetry for the entire VS Code, refer to `telemetry.telemetryLevel` and change it to the desired value.
+- To disable telemetry for the entire VS Code, refer to [`telemetry.telemetryLevel`](https://code.visualstudio.com/docs/getstarted/telemetry) and change it to the desired value.
 - To disable telemetry only for this extension, change the Promptis `telemetry.enable` setting to false.
 
 # Support
 
 - Supports the latest version of VS Code and up to two previous versions.
-- Bugs and feature requests for this extension are accepted in Issues.
-Release Notes
+- Bugs and feature requests for this extension are accepted in [Issues](https://github.com/Fintan-contents/promptis/issues).
 
 ## License
 
 [Apache-2.0 License](./LICENSE)
+
+## Release Notes
