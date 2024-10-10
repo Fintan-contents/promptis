@@ -58,7 +58,7 @@ Chatウィンドウから @promptis に対して指示（コマンド）を出�
 | `codereviewFunctional`          | 機能観点のコードレビューを行う |
 | `codereviewNonFunctional`       | 非機能観点のコードレビューを行う |
 | `reverseEngineeringPromptPath`  | ソースコードに対するリバースエンジニアリングを行う |
-| `drowDiagrams`                  | ソースコードから図式を作成する |
+| `drawDiagrams`                  | ソースコードから図式を作成する |
 
 ## Requirements
 

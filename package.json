@@ -40,8 +40,8 @@
             "description": "Review the Code With Non Functional Requirements"
           },
           {
-            "name": "drowDiagrams",
-            "description": "Dwaw Diagrams from the Code"
+            "name": "drawDiagrams",
+            "description": "Draw Diagrams from the Code"
           }
         ]
       }
