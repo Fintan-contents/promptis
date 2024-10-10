@@ -46,9 +46,11 @@ Promptisは、GitHub Copilot Chatを利用してプロンプト実行を半自�
 ソースコードや設定ファイルに対するレビュー観点等のプロンプトをMarkdownファイル（群）としてディレクトリに準備しておき、
 Chatウィンドウから @promptis に対して指示（コマンド）を出すことで、そのコマンドに対応するプロンプトを連続して実行することができます。例えば、`chatHandler.ts`と`api.ts`に対してコード基準を満たしているかをレビューさせる場合は、次のように指示します。
 
+```text
 @promptis /codereviewCodeStandards #file:chatHandler.ts #file:api.ts
+```
 
-`/codereviewCodeStandards`のコマンドと、プロンプト格納ディレクトリが1:1に対応しており、その配下にあるプロンプトファイル（拡張子: `.md`)をPromptisが再帰的に読み込み、連続実行します。
+`/codereviewCodeStandards`等のコマンドと、プロンプト格納ディレクトリが1:1に対応しており、その配下にあるプロンプトファイル（拡張子: `.md`)をPromptisが再帰的に読み込み、連続実行します。
 
 指示できるコマンドは次のとおりです。
 
