@@ -17,9 +17,9 @@ Promptis is a Visual Studio Code (VS Code) Extension that semi-automates prompt 
 
 ## Merits
 
-- **Semi-automatic Prompt Execution**: Allows continuous execution of pre-prepared prompts.
-- **Consistent Code Generation**: Improves code quality and consistency through unified prompts.
-- **Increased Productivity**: Reduces the hassle of frequent prompt input, allowing you to focus on coding.
+- **Reduced Prompt Input Effort**: Automatic execution of prompts reduces manual input tasks, allowing you to focus on development.
+- **Consistent Code Reviews**: Unified prompts improve the quality and consistency of code reviews.
+- **Faster Feedback**: Automatic execution of prompts speeds up code reviews and feedback, shortening the development cycle.
 
 ## How to Install
 
