@@ -36,7 +36,7 @@ suite("Extension Test Suite", () => {
     sinon.assert.calledOnceWithExactly(createChatParticipantStub, "promptis.promptis", chatHandler);
     // アイコンが想定通り設定されることを確認
     const participant = createChatParticipantStub.returnValues[0];
-    assert.strictEqual(participant.iconPath?.fsPath, "/path/to/extension/images/icon.gif");
+    assert.strictEqual(participant.iconPath?.fsPath, "/path/to/extension/images/icon.png");
 
     // commandMapの数だけコマンドが登録されることを確認
     assert.strictEqual(registerCommandStub.callCount, Object.keys(commandMap).length);
