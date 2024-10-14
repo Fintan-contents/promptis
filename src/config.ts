@@ -85,7 +85,9 @@ export class Config {
    * @returns チャット出力ディレクトリのパス、または未定義
    */
   static getChatOutputDirPath(): string | undefined {
-    return Config.getPath("chat.outputPath");
+    // 未設定はユーザが意図しているケースがあるため、
+    // 未設定の場合に設定画面を表示するgetPathは使わない
+    return vscode.workspace.getConfiguration().get<string>("chat.outputPath");
   }
 
   /**
