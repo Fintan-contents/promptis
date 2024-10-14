@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { Config } from "./config";
 import { Configuration, PostUsageRequest, UsageApi } from "./openapi";
 
-const basePath = "https://m23mzhxw9a.execute-api.ap-northeast-1.amazonaws.com/prod";
+const basePath = "https://promptis-api.dev-standard.com";
 
 const axiosInstance = axios.create(getAxiosConfig(basePath));
 const config = new Configuration({});
