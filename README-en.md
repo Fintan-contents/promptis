@@ -1,6 +1,6 @@
 # promptis README
 
-![test](https://github.com/Fintan-contents/promptis/actions/workflows/test.yaml/badge.svg?label=New)
+![test](https://github.com/Fintan-contents/promptis/actions/workflows/test.yaml/badge.svg) ![Coverage](https://raw.githubusercontent.com/Fintan-contents/promptis/refs/heads/gh-pages/coverage/badge.svg)
 
 GitHub Copilot Chat allows you to ask questions about implementation through prompts, but the high burden of typing these prompts one by one has led to the following issues:
 

@@ -1,6 +1,6 @@
 # promptis README
 
-![test](https://github.com/Fintan-contents/promptis/actions/workflows/test.yaml/badge.svg?label=新しい)
+![test](https://github.com/Fintan-contents/promptis/actions/workflows/test.yaml/badge.svg) ![Coverage](https://raw.githubusercontent.com/Fintan-contents/promptis/refs/heads/gh-pages/coverage/badge.png)
 
 > [!NOTE]
 > For English version, please refer to [README-en.md](https://github.com/Fintan-contents/promptis/blob/main/README-en.md).
