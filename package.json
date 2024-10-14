@@ -112,8 +112,8 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src && openapi-generator-cli validate -i openapi.yaml",
     "test": "run-script-os",
-    "test:linux": "xvfb-run -a vscode-test --coverage --coverage-output --coverage-reporter=html",
-    "test:win32:darwin": "vscode-test --coverage --coverage-output --coverage-reporter=html",
+    "test:linux": "xvfb-run -a vscode-test --coverage --coverage-output --coverage-reporter html json-summary",
+    "test:win32:darwin": "vscode-test --coverage --coverage-output --coverage-reporter html json-summary",
     "test-versions": ".github/scripts/test_vscode_versions.sh",
     "build": "vsce package"
   },

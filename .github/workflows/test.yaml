@@ -30,7 +30,15 @@ jobs:
       run: npm run test
       if: runner.os == 'Linux'
 
-    - name: Upload Coverage
-      uses: actions/upload-artifact@v4
+    - name: Generate coverage badge
+      uses: jaywcjlove/coverage-badges-cli@main
       with:
-        path: coverage
+        source: coverage/coverage-summary.json
+        output: coverage/badge.svg
+
+    - name: Push coverage badge
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./coverage
+        destination_dir: coverage
