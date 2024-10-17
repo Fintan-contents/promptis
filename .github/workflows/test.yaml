@@ -36,6 +36,14 @@ jobs:
         source: coverage/coverage-summary.json
         output: coverage/badge.svg
 
+    # vsceでパッケージングしたところ、SVG は README に含めれらなかったので PNG に変換
+    # 類似 issue: https://github.com/microsoft/vscode-vsce/issues/183
+    - name: Convert SVG to PNG
+      uses: linrock/svg-to-png-action@only-convert
+      with:
+        svg-file: coverage/badge.svg
+        png-file: coverage/badge.png
+
     - name: Push coverage badge
       uses: peaceiris/actions-gh-pages@v4
       with:
