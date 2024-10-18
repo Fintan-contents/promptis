@@ -39,8 +39,7 @@ jobs:
     - name: Convert SVG to PNG
       uses: jruipinto/ImageMagick-action@v1
       with:
-        command: convert -density 1200 coverage/badge.svg coverage/badge.png
-
+        command: magick -density 1200 coverage/badge.svg coverage/badge.png
 
     - name: Push coverage badge
       uses: peaceiris/actions-gh-pages@v4
