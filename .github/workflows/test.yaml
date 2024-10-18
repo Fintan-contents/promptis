@@ -37,9 +37,10 @@ jobs:
         output: coverage/badge.svg
 
     - name: Convert SVG to PNG
-      uses: jruipinto/ImageMagick-action@v1
+      uses: joergnapp/convert-svg-to-png@v1.0
       with:
-        command: magick -density 1200 coverage/badge.svg coverage/badge.png
+        svgpath: 'coverage/'
+        pngpath: 'coverage/'
 
     - name: Push coverage badge
       uses: peaceiris/actions-gh-pages@v4
