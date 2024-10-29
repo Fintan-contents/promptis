@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">99.28% </span>
+                <span class="strong">99.27% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>279/281</span>
+                <span class='fraction'>275/277</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">97.5% </span>
+                <span class="strong">97.43% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>39/40</span>
+                <span class='fraction'>38/39</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">99.28% </span>
+                <span class="strong">99.27% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>279/281</span>
+                <span class='fraction'>275/277</span>
             </div>
         
             
@@ -340,13 +340,7 @@
 <a name='L275'></a><a href='#L275'>275</a>
 <a name='L276'></a><a href='#L276'>276</a>
 <a name='L277'></a><a href='#L277'>277</a>
-<a name='L278'></a><a href='#L278'>278</a>
-<a name='L279'></a><a href='#L279'>279</a>
-<a name='L280'></a><a href='#L280'>280</a>
-<a name='L281'></a><a href='#L281'>281</a>
-<a name='L282'></a><a href='#L282'>282</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L278'></a><a href='#L278'>278</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -425,9 +419,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -630,11 +622,9 @@ import moment from "moment";
 import path from "path";
 import * as vscode from "vscode";
 import { postUsage } from "./api";
-import { FileChatResponseStream } from "./chatutil";
+import { FileChatResponseStreamWrapper } from "./chatutil";
 import { Config } from "./config";
 import { extractTargetFiles, findPromptFiles } from "./util";
-&nbsp;
-export interface IPromptisChatResult extends vscode.ChatResult {}
 &nbsp;
 type CommandPromptPathMap = Map&lt;string, () =&gt; string | undefined&gt;;
 const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
@@ -664,11 +654,11 @@ const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
  * 7. デバッグ用にリクエストの詳細をコンソールに出力する。
  */
 export const chatHandler: vscode.ChatRequestHandler = async (
-  request: vscode.ChatRequest,
-  context: vscode.ChatContext,
-  stream: vscode.ChatResponseStream,
-  token: vscode.CancellationToken,
-): Promise&lt;IPromptisChatResult&gt; =&gt; {
+  request,
+  context,
+  stream,
+  token,
+) =&gt; {
   // chatに使用するAIモデルを選択する
   const chatModel = await selectChatModel();
   if (!chatModel) {
@@ -706,8 +696,6 @@ export const chatHandler: vscode.ChatRequestHandler = async (
     // ファイル指定がなければ、エディタで選択されている内容をレビューする
     await processSelectedContent(promptFiles, chatModel, token, stream);
   }
-&nbsp;
-  return {};
 };
 &nbsp;
 export function getPromptDirectory(command: string): string | undefined {
@@ -764,7 +752,7 @@ export async function processSourceFiles(
   model: vscode.LanguageModelChat,
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
-) {
+): Promise&lt;void&gt; {
   // ソースファイルを軸にして、プロンプトを適用していく
   for (const sourcePath of sourcePaths) {
     stream.progress(`Processing ${sourcePath} ...\n`);
@@ -782,14 +770,14 @@ export async function processSourceFiles(
  * @param {vscode.LanguageModelChat} model - 使用するChat Model
  * @param {vscode.CancellationToken} token - キャンセルトークン。
  * @param {vscode.ChatResponseStream} stream - チャット用の Response Stream
- * @returns {Promise&lt;void&gt;} 処理が完了したことを示すPromise
+ * @returns {Promise&lt;void | vscode.ChatResult&gt;} 処理が完了したことを示すPromise、またはエラーが発生した場合はエラー情報を含む ChatResult
  */
 export async function processSelectedContent(
   promptFiles: string[],
   model: vscode.LanguageModelChat,
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
-) {
+): Promise&lt;void | vscode.ChatResult&gt; {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
     return createErrorResponse("No active editor", stream);
@@ -829,7 +817,7 @@ export async function processContent(
   model: vscode.LanguageModelChat,
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
-) {
+): Promise&lt;void&gt; {
   for (const promptFile of promptFiles) {
     const promptContent = fs.readFileSync(promptFile, "utf8");
     const messages = [
@@ -842,7 +830,7 @@ export async function processContent(
       const outputDirPath = Config.getChatOutputDirPath();
       if (outputDirPath &amp;&amp; outputDirPath.length &gt; 0) {
         // ResponseStream をラップして、ファイルに保存するようにする
-        stream = new FileChatResponseStream(stream, makeChatFilePath(outputDirPath, promptFile, contentFilePath));
+        stream = new FileChatResponseStreamWrapper(stream, makeChatFilePath(outputDirPath, promptFile, contentFilePath));
       }
       stream.markdown(`## Prompt file: ${path.basename(promptFile)}\n\n`);
 &nbsp;
@@ -878,7 +866,7 @@ export async function processContent(
       stream.markdown(`Error processing content: ${error}`);
     } finally {
       stream.markdown("\n\n");
-      if (stream instanceof FileChatResponseStream) {
+      if (stream instanceof FileChatResponseStreamWrapper) {
         stream.writeToFile();
       }
     }
@@ -901,7 +889,7 @@ export function makeChatFilePath(dirPath: string, promptPath: string, sourceFile
   return path.join(dirPath, `${srcBasename}_${promptBasename}_${timestamp}.md`);
 }
 &nbsp;
-export function createErrorResponse(message: string, stream: vscode.ChatResponseStream): IPromptisChatResult {
+export function createErrorResponse(message: string, stream: vscode.ChatResponseStream): vscode.ChatResult {
   console.debug(message);
   stream.markdown(message);
   return { errorDetails: { message } };
@@ -913,7 +901,7 @@ export function createErrorResponse(message: string, stream: vscode.ChatResponse
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-10-22T11:29:48.473Z
+                at 2024-10-29T05:52:43.832Z
             </div>
         <script src="prettify.js"></script>
         <script>
