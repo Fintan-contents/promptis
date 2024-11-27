@@ -27,7 +27,7 @@ Promptis is a Visual Studio Code (VS Code) Extension that semi-automates prompt 
 
 Please install from Promptis on [Extensions for Visual Studio Code](https://marketplace.visualstudio.com/vscode).
 
-- TODO: Add link once published
+- [Promptis - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tis.promptis)
 
 ### Installing on a Device Without Internet Access
 

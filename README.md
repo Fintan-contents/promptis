@@ -30,7 +30,7 @@ Promptisは、これらの問題を解決するために、GitHub Copilot Chat�
 
 [Extensions for Visual Studio Code](https://marketplace.visualstudio.com/vscode)のPromptisからインストールしてください。
 
-- TODO:Publish次第、リンクを貼る
+- [Promptis - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tis.promptis)
 
 ### インターネットに接続できない端末にインストールする場合
 
