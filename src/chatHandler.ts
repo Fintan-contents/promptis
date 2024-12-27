@@ -128,13 +128,17 @@ export async function processSourceFiles(
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
 ): Promise<void> {
+  let counter = 0;
+  const sourceNum = sourcePaths.length;
+
   // ソースファイルを軸にして、プロンプトを適用していく
   for (const sourcePath of sourcePaths) {
-    stream.progress(`Processing ${sourcePath} ...\n`);
-    console.debug(`Processing ${sourcePath} ...`);
+    stream.markdown(`progress: ${counter + 1}/${sourceNum}\n`);
+    stream.markdown(`----\n`);
 
     const content = fs.readFileSync(sourcePath, { encoding: "utf8" });
     await processContent(content, sourcePath, promptPaths, model, token, stream);
+    counter++;
   }
 }
 
@@ -210,7 +214,10 @@ export async function processContent(
           makeChatFilePath(outputDirPath, promptFile, contentFilePath),
         );
       }
-      stream.markdown(`## Prompt file: ${path.basename(promptFile)}\n\n`);
+      stream.markdown(`## Review Details \n\n`);
+      stream.markdown(`- Prompt: ${path.basename(promptFile)}\n`);
+      stream.markdown(`- Target: ${path.basename(contentFilePath)}\n`);
+      stream.markdown(`----\n`);
 
       // プロンプトを送信し、GitHub Copilot の AI モデルから応答を受信、出力する
       const res = await model.sendRequest(messages, {}, token);
