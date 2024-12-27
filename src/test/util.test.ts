@@ -37,8 +37,9 @@ suite("Util Test Suite", function () {
   });
 
   suite("extractTargetFiles Test Suite", function () {
-    test("extractTargetFiles should return file paths from request references", function () {
+    test("extractTargetFiles should return file paths from request references", async function () {
       const req = {
+        prompt: "hoge",
         references: [
           {
             id: "vscode.file",
@@ -50,22 +51,26 @@ suite("Util Test Suite", function () {
           },
         ],
       } as unknown as vscode.ChatRequest;
+      const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
-      const result = extractTargetFiles(req);
+      const result = await extractTargetFiles(req, stream);
       assert.deepStrictEqual(result, ["/path/to/file2", "/path/to/file1"]);
     });
 
-    test("extractTargetFiles should handle empty references", function () {
+    test("extractTargetFiles should handle empty references", async function () {
       const req = {
+        prompt: "hoge",
         references: [],
       } as unknown as vscode.ChatRequest;
+      const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
-      const result = extractTargetFiles(req);
+      const result = await extractTargetFiles(req, stream);
       assert.deepStrictEqual(result, []);
     });
 
-    test("extractTargetFiles should ignore non-file references", function () {
+    test("extractTargetFiles should ignore non-file references", async function () {
       const req = {
+        prompt: "hoge",
         references: [
           {
             id: "vscode.file",
@@ -77,8 +82,9 @@ suite("Util Test Suite", function () {
           },
         ],
       } as unknown as vscode.ChatRequest;
+      const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
-      const result = extractTargetFiles(req);
+      const result = await extractTargetFiles(req, stream);
       assert.deepStrictEqual(result, ["/path/to/file1"]);
     });
   });
@@ -93,7 +99,7 @@ suite("Util Test Suite", function () {
       test(`timestampAsString should return ${expected} from ${date}`, function () {
         const result = timestampAsString(date);
         assert.strictEqual(result, expected);
-      });  
+      });
     });
   });
 });

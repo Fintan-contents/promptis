@@ -57,9 +57,94 @@ export function findPromptFiles(directoryPath: string, ignorePatterns: string[])
   return promptFiles;
 }
 
-export function extractTargetFiles(req: vscode.ChatRequest): string[] {
+/**
+ * URIをファイルパスに変換する関数。
+ * URIのスキームがfileの場合はfsPathを、それ以外の場合はpathを返す。
+ * @param {vscode.Uri} uri - 変換するURI
+ * @returns {string} - ファイルパス
+ * @example
+ * const uri = vscode.Uri.file('/path/to/file');
+ * const path = uriToPath(uri);
+ * console.log(path);
+ */
+function uriToPath(uri: vscode.Uri): string {
+  // 基本的にはfsPathを使うべき。ただし、Linuxの場合はfsPathが渡されないため、pathを使う
+  return uri.fsPath ?? uri.path;
+}
+
+/**
+ * 指定されたディレクトリ内のファイルを取得し、そのパスを返す関数。
+ * @param {string} filterPattern - フィルタリングパターン
+ * @param {vscode.ChatResponseStream} stream - Chat Response Stream
+ * @returns {string[]} - ファイルのパスの配列
+ * @example
+ * const files = await extractFilesInDirectory('/path/to/directory', stream);
+ * console.log(files);
+ */
+async function extractFilesInDirectory(filterPattern: string, stream: vscode.ChatResponseStream): Promise<string[]> {
+  // 処理対象ソースファイルのパスを格納する配列
+  const srcPaths: string[] = [];
+
+  const dirUris = await vscode.window.showOpenDialog({
+    canSelectFiles: false,
+    canSelectFolders: true,
+    canSelectMany: false,
+    openLabel: "Select Directory",
+  });
+  if (!dirUris || dirUris.length === 0) {
+    return [];
+  }
+
+  const dirUri = dirUris[0];
+  const dirPath = uriToPath(dirUri);
+
+  stream.markdown(
+    `You specified \`#dir\`, so the following files under the specified directory \`${dirPath}\` will be added as targets for prompt application.\n\n`,
+  );
+
+  // 指定されたディレクトリの全ファイルを対象とする
+  const fileUris = await vscode.workspace.findFiles(new vscode.RelativePattern(dirUri, filterPattern));
+  for (const fileUri of fileUris) {
+    const fileRelPath = path.relative(dirPath, uriToPath(fileUri));
+    stream.markdown(`- ${path.join(path.basename(dirPath), fileRelPath)}\n`);
+    srcPaths.push(uriToPath(fileUri));
+  }
+
+  return srcPaths;
+}
+
+/**
+ * ユーザの Chat Request 中で指定されたレビュー対象ファイルを取得する関数。
+ *
+ * @param {vscode.ChatRequest} req - ユーザの Chat Request
+ * @param {vscode.ChatResponseStream} stream - Chat Response Stream
+ * @returns {string[]} - 処理対象ファイルのパスの配列
+ *
+ * @example
+ * const targetFiles = await extractTargetFiles(request, stream);
+ * console.log(targetFiles);
+ */
+export async function extractTargetFiles(
+  req: vscode.ChatRequest,
+  stream: vscode.ChatResponseStream,
+): Promise<string[]> {
+  // 処理対象ソースファイルのパスを格納する配列
+  const srcPaths: string[] = [];
+
+  let filterPattern = "**/*"; // デフォルトのフィルタリングパターン
+  const match = req.prompt.match(/#filter:(\S+)/);
+  if (match) {
+    filterPattern = match[1];
+  }
+
+  // チャットの中で #dir を指定された時に、ディレクトリを選択させる
+  // 選択されたディレクトリ配下のファイルをプロンプト処理対象とする
+  if (req.prompt.includes("#dir")) {
+    const paths = await extractFilesInDirectory(filterPattern, stream);
+    srcPaths.push(...paths);
+  }
+
   // references は出現順の逆順になるため、末尾から処理する
-  const ret: string[] = [];
   for (let i = req.references.length - 1; i >= 0; i--) {
     const ref = req.references[i];
 
@@ -71,16 +156,18 @@ export function extractTargetFiles(req: vscode.ChatRequest): string[] {
     // referenceがファイルの場合、当該ファイルの内容を返す
     if (ref.id === "vscode.file") {
       const uri = ref.value as vscode.Uri;
-      // 基本的にはfsPathを使うべき。ただし、Linuxの場合はfsPathが渡されないため、pathを使う
-      ret.push(uri.fsPath ?? uri.path);
+      srcPaths.push(uriToPath(uri));
     }
   }
-  return ret;
+
+  // 処理対象ファイルを出力し終えたことを示すために、区切り線を表示する
+  stream.markdown(`----\n\n`);
+  return srcPaths;
 }
 
 /**
  * タイムスタンプをYYYYMMDD-HHmmss形式の文字列で返す関数。
- * 
+ *
  * @param {Date} date - タイムスタンプを取得する日時。省略した場合は現在時刻を使用する。
  * @returns {string} - YYYYMMDD-HHmmss形式の文字列
  */

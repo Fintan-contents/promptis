@@ -85,7 +85,14 @@ suite("chatHandler Test Suite", function () {
 
   suite("chatHandler Tests", function () {
     test("chatHandler should handle chat request", async function () {
-      const request = { command: "codereviewCodeStandards", prompt: "hoge", references: [] } as vscode.ChatRequest;
+      const request: vscode.ChatRequest = {
+        command: "codereviewCodeStandards",
+        prompt: "hoge",
+        references: [],
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {} as vscode.LanguageModelChat,
+      };
       const { context, stream, token } = createPartOfChatRequest();
 
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);
@@ -96,7 +103,14 @@ suite("chatHandler Test Suite", function () {
       // 何も返却されないようにする
       mockSelectChatModels.resolves([]);
 
-      const request = { command: "codereviewCodeStandards", prompt: "hoge", references: [] } as vscode.ChatRequest;
+      const request: vscode.ChatRequest = {
+        command: "codereviewCodeStandards",
+        prompt: "hoge",
+        references: [],
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {} as vscode.LanguageModelChat,
+      };
       const { context, stream, token } = createPartOfChatRequest();
 
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);
@@ -104,11 +118,14 @@ suite("chatHandler Test Suite", function () {
     });
 
     test("chatHandler should return error if no command is specified", async function () {
-      const request = {
+      const request: vscode.ChatRequest = {
         command: "", // コマンドを指定しない
         prompt: "hoge",
         references: [],
-      } as vscode.ChatRequest;
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {} as vscode.LanguageModelChat,
+      };
       const { context, stream, token } = createPartOfChatRequest();
 
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);
@@ -116,11 +133,14 @@ suite("chatHandler Test Suite", function () {
     });
 
     test("chatHandler should return error if no prompt path is found for command", async function () {
-      const request = {
+      const request: vscode.ChatRequest = {
         command: "unknownCommand", // 未定義コマンド
         prompt: "hoge",
         references: [],
-      } as vscode.ChatRequest;
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {} as vscode.LanguageModelChat,
+      };
       const { context, stream, token } = createPartOfChatRequest();
 
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);
@@ -128,11 +148,14 @@ suite("chatHandler Test Suite", function () {
     });
 
     test("chatHandler should return error if no prompt files are found", async function () {
-      const request = {
+      const request: vscode.ChatRequest = {
         command: "codereviewCodeStandards",
         prompt: "hoge",
         references: [],
-      } as vscode.ChatRequest;
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {} as vscode.LanguageModelChat,
+      };
       const { context, stream, token } = createPartOfChatRequest();
 
       // プロンプト格納ディレクトリを返却するスタブを、空のディレクトリを指定するように上書き
@@ -154,12 +177,15 @@ suite("chatHandler Test Suite", function () {
     });
 
     test("chatHandler should process source files if target files are specified", async function () {
-      const request = {
+      const request: vscode.ChatRequest = {
         command: "codereviewCodeStandards",
         prompt: "hoge",
         // プロンプトで #file 指定をされているケースを作成
         references: [{ id: "vscode.file", range: [12, 25], value: { $mid: 1, path: __filename, scheme: "file" } }],
-      } as vscode.ChatRequest;
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {} as vscode.LanguageModelChat,
+      };
       const { context, stream, token } = createPartOfChatRequest();
 
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);

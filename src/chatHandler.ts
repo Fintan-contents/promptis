@@ -33,12 +33,7 @@ const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
  * 6. ターゲットファイルが存在しない場合は、エディタで選択された内容を処理する
  * 7. デバッグ用にリクエストの詳細をコンソールに出力する。
  */
-export const chatHandler: vscode.ChatRequestHandler = async (
-  request,
-  context,
-  stream,
-  token,
-) => {
+export const chatHandler: vscode.ChatRequestHandler = async (request, context, stream, token) => {
   // chatに使用するAIモデルを選択する
   const chatModel = await selectChatModel();
   if (!chatModel) {
@@ -68,7 +63,7 @@ export const chatHandler: vscode.ChatRequestHandler = async (
   }
 
   // ユーザの Chat Request 中で指定されたレビュー対象ファイルを取得する
-  const targetFiles = extractTargetFiles(request);
+  const targetFiles = await extractTargetFiles(request, stream);
   if (targetFiles.length > 0) {
     // ファイル指定があれば、当該ファイルをレビューする
     await processSourceFiles(targetFiles, promptFiles, chatModel, token, stream);
@@ -210,7 +205,10 @@ export async function processContent(
       const outputDirPath = Config.getChatOutputDirPath();
       if (outputDirPath && outputDirPath.length > 0) {
         // ResponseStream をラップして、ファイルに保存するようにする
-        stream = new FileChatResponseStreamWrapper(stream, makeChatFilePath(outputDirPath, promptFile, contentFilePath));
+        stream = new FileChatResponseStreamWrapper(
+          stream,
+          makeChatFilePath(outputDirPath, promptFile, contentFilePath),
+        );
       }
       stream.markdown(`## Prompt file: ${path.basename(promptFile)}\n\n`);
 
