@@ -62,6 +62,16 @@ The commands you can instruct are as follows:
 
 For prompt examples, please refer to our [Generative AI Engineering Utilization Guide](https://fintan-contents.github.io/gai-dev-guide/prompts). The compressed files can be downloaded from [here](https://github.com/Fintan-contents/gai-dev-guide/releases).
 
+### Chat Variables
+
+The [chat variables](https://code.visualstudio.com/docs/copilot/copilot-chat#_chat-context) such as `#file` and `#dir` available in GitHub Copilot Chat can be used as is.  
+In Promptis, you can also use the following chat variables:
+
+| Chat Variable | Description | Example |
+| ------------- | ----------- | ------- |
+| `#dir` | By including `#dir` in the prompt, you can specify the directory to which the prompt will be applied. The prompt will be executed on all files under the specified directory. | `@promptis /codereviewCodeStandards #dir` |
+| `#filter:[GlobPattern]` | By including `#filter:[GlobPattern]` in the prompt, you can narrow down the files extracted by the `#dir` specification to only those that match the GlobPattern. For the patterns that can be specified, refer to [GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern). | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
+
 ## Requirements
 
 - [VS Code](https://code.visualstudio.com/) [version.1.91.0](https://code.visualstudio.com/updates/v1_91) or later

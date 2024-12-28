@@ -33,18 +33,7 @@ const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
  * 6. ターゲットファイルが存在しない場合は、エディタで選択された内容を処理する
  * 7. デバッグ用にリクエストの詳細をコンソールに出力する。
  */
-export const chatHandler: vscode.ChatRequestHandler = async (
-  request,
-  context,
-  stream,
-  token,
-) => {
-  // chatに使用するAIモデルを選択する
-  const chatModel = await selectChatModel();
-  if (!chatModel) {
-    return createErrorResponse("No chat model found", stream);
-  }
-
+export const chatHandler: vscode.ChatRequestHandler = async (request, context, stream, token) => {
   // ユーザから、コマンドが指定されているか確認する
   const command = request.command;
   if (!command) {
@@ -68,52 +57,19 @@ export const chatHandler: vscode.ChatRequestHandler = async (
   }
 
   // ユーザの Chat Request 中で指定されたレビュー対象ファイルを取得する
-  const targetFiles = extractTargetFiles(request);
+  const targetFiles = await extractTargetFiles(request, stream);
   if (targetFiles.length > 0) {
     // ファイル指定があれば、当該ファイルをレビューする
-    await processSourceFiles(targetFiles, promptFiles, chatModel, token, stream);
+    await processSourceFiles(targetFiles, promptFiles, request.model, token, stream);
   } else {
     // ファイル指定がなければ、エディタで選択されている内容をレビューする
-    await processSelectedContent(promptFiles, chatModel, token, stream);
+    await processSelectedContent(promptFiles, request.model, token, stream);
   }
 };
 
 export function getPromptDirectory(command: string): string | undefined {
   const dir = commandPromptDirectoryMap.get(command)?.();
   return dir;
-}
-
-/**
- * Copilotベンダーの Chat Modelを選択する
- *
- * @returns {Promise<vscode.LanguageModelChat | null>} 選択されたChat Model。modelが見つからなかった場合やエラーが発生した場合はnullを返す。
- */
-export async function selectChatModel(): Promise<vscode.LanguageModelChat | null> {
-  try {
-    // CopilotベンダーのGPT-4oファミリーのチャットモデルを選択する
-    const models = await vscode.lm.selectChatModels({
-      vendor: "copilot",
-      family: "gpt-4o",
-    });
-
-    // 見つかったチャットモデルの数をデバッグ出力する
-    console.debug(`Found ${models.length} chat models`);
-
-    // チャットモデルが見つからなかった場合のエラーハンドリング
-    if (models.length === 0) {
-      console.error("No chat models found");
-      vscode.window.showErrorMessage("No chat models found");
-      return null;
-    }
-
-    // 最初のチャットモデルを返す
-    return models[0];
-  } catch (error) {
-    // エラーハンドリング
-    console.error("Error selecting chat models", error);
-    vscode.window.showErrorMessage("Error selecting chat models");
-    return null;
-  }
 }
 
 /**
@@ -133,13 +89,17 @@ export async function processSourceFiles(
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
 ): Promise<void> {
+  let counter = 0;
+  const sourceNum = sourcePaths.length;
+
   // ソースファイルを軸にして、プロンプトを適用していく
   for (const sourcePath of sourcePaths) {
-    stream.progress(`Processing ${sourcePath} ...\n`);
-    console.debug(`Processing ${sourcePath} ...`);
+    stream.markdown(`progress: ${counter + 1}/${sourceNum}\n`);
+    stream.markdown(`----\n`);
 
     const content = fs.readFileSync(sourcePath, { encoding: "utf8" });
     await processContent(content, sourcePath, promptPaths, model, token, stream);
+    counter++;
   }
 }
 
@@ -210,9 +170,15 @@ export async function processContent(
       const outputDirPath = Config.getChatOutputDirPath();
       if (outputDirPath && outputDirPath.length > 0) {
         // ResponseStream をラップして、ファイルに保存するようにする
-        stream = new FileChatResponseStreamWrapper(stream, makeChatFilePath(outputDirPath, promptFile, contentFilePath));
+        stream = new FileChatResponseStreamWrapper(
+          stream,
+          makeChatFilePath(outputDirPath, promptFile, contentFilePath),
+        );
       }
-      stream.markdown(`## Prompt file: ${path.basename(promptFile)}\n\n`);
+      stream.markdown(`## Review Details \n\n`);
+      stream.markdown(`- Prompt: ${path.basename(promptFile)}\n`);
+      stream.markdown(`- Target: ${path.basename(contentFilePath)}\n`);
+      stream.markdown(`----\n`);
 
       // プロンプトを送信し、GitHub Copilot の AI モデルから応答を受信、出力する
       const res = await model.sendRequest(messages, {}, token);
