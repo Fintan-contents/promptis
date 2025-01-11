@@ -66,6 +66,16 @@ Chatウィンドウから @promptis に対して指示（コマンド）を出�
 
 プロンプト例については、[生成AI エンジニアリング活用ガイド](https://fintan-contents.github.io/gai-dev-guide/prompts)にも公開しており、圧縮ファイルは[こちら](https://github.com/Fintan-contents/gai-dev-guide/releases)からダウンロードいただけます。
 
+### チャット変数
+
+GitHub Copilot Chatで利用できる`#file`や`#selection`などの[チャット変数](https://code.visualstudio.com/docs/copilot/copilot-chat#_chat-context)はそのままご利用いただけます。  
+Promptisではさらに、次のチャット変数を利用できます。
+
+| チャット変数 | 説明 | 例 |
+| ------------ | ---- | -- |
+| `#dir:[Directory]` | プロンプト中に`#dir`を含めることで、プロンプトを適用するディレクトリを指定できる。指定したディレクトリ配下の全ファイルに対してプロンプトが実行される。また、`#dir:path/to/dir`の形式で直接ディレクトリを指定することも可能。 | `@promptis /codereviewCodeStandards #dir` |
+| `#filter:[GlobPattern]` | プロンプト中に`#filter:[GlobPattern]`を含めることで、`#dir`指定によって抽出されたファイルのうち、GlobPatternに合致するもののみを適用対象として絞り込める。指定できるパターンについては[GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern)を参照。 | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
+
 ## Requirements
 
 - [VS Code](https://code.visualstudio.com/) が[version.1.91.0](https://code.visualstudio.com/updates/v1_91)以降

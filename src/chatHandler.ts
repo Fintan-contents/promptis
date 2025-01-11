@@ -33,12 +33,7 @@ const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
  * 6. ターゲットファイルが存在しない場合は、エディタで選択された内容を処理する
  * 7. デバッグ用にリクエストの詳細をコンソールに出力する。
  */
-export const chatHandler: vscode.ChatRequestHandler = async (
-  request,
-  context,
-  stream,
-  token,
-) => {
+export const chatHandler: vscode.ChatRequestHandler = async (request, context, stream, token) => {
   // chatに使用するAIモデルを選択する
   const chatModel = await selectChatModel();
   if (!chatModel) {
@@ -68,7 +63,7 @@ export const chatHandler: vscode.ChatRequestHandler = async (
   }
 
   // ユーザの Chat Request 中で指定されたレビュー対象ファイルを取得する
-  const targetFiles = extractTargetFiles(request);
+  const targetFiles = await extractTargetFiles(request, stream);
   if (targetFiles.length > 0) {
     // ファイル指定があれば、当該ファイルをレビューする
     await processSourceFiles(targetFiles, promptFiles, chatModel, token, stream);
@@ -133,13 +128,17 @@ export async function processSourceFiles(
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
 ): Promise<void> {
+  let counter = 0;
+  const sourceNum = sourcePaths.length;
+
   // ソースファイルを軸にして、プロンプトを適用していく
   for (const sourcePath of sourcePaths) {
-    stream.progress(`Processing ${sourcePath} ...\n`);
-    console.debug(`Processing ${sourcePath} ...`);
+    stream.markdown(`progress: ${counter + 1}/${sourceNum}\n`);
+    stream.markdown(`----\n`);
 
     const content = fs.readFileSync(sourcePath, { encoding: "utf8" });
     await processContent(content, sourcePath, promptPaths, model, token, stream);
+    counter++;
   }
 }
 
@@ -210,9 +209,15 @@ export async function processContent(
       const outputDirPath = Config.getChatOutputDirPath();
       if (outputDirPath && outputDirPath.length > 0) {
         // ResponseStream をラップして、ファイルに保存するようにする
-        stream = new FileChatResponseStreamWrapper(stream, makeChatFilePath(outputDirPath, promptFile, contentFilePath));
+        stream = new FileChatResponseStreamWrapper(
+          stream,
+          makeChatFilePath(outputDirPath, promptFile, contentFilePath),
+        );
       }
-      stream.markdown(`## Prompt file: ${path.basename(promptFile)}\n\n`);
+      stream.markdown(`## Review Details \n\n`);
+      stream.markdown(`- Prompt: ${path.basename(promptFile)}\n`);
+      stream.markdown(`- Target: ${path.basename(contentFilePath)}\n`);
+      stream.markdown(`----\n`);
 
       // プロンプトを送信し、GitHub Copilot の AI モデルから応答を受信、出力する
       const res = await model.sendRequest(messages, {}, token);
