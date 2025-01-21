@@ -2,7 +2,7 @@ import * as assert from "assert";
 import * as path from "path";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import { extractTargetFiles, findPromptFiles, timestampAsString } from "../util";
+import { extractFilesInDirectory, extractTargetFiles, findPromptFiles, timestampAsString } from "../util";
 
 suite("Util Test Suite", function () {
   let mockShowErrorMessage: sinon.SinonStub;
@@ -37,8 +37,9 @@ suite("Util Test Suite", function () {
   });
 
   suite("extractTargetFiles Test Suite", function () {
-    test("extractTargetFiles should return file paths from request references", function () {
+    test("extractTargetFiles should return file paths from request references", async function () {
       const req = {
+        prompt: "hoge",
         references: [
           {
             id: "vscode.file",
@@ -50,22 +51,26 @@ suite("Util Test Suite", function () {
           },
         ],
       } as unknown as vscode.ChatRequest;
+      const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
-      const result = extractTargetFiles(req);
+      const result = await extractTargetFiles(req, stream);
       assert.deepStrictEqual(result, ["/path/to/file2", "/path/to/file1"]);
     });
 
-    test("extractTargetFiles should handle empty references", function () {
+    test("extractTargetFiles should handle empty references", async function () {
       const req = {
+        prompt: "hoge",
         references: [],
       } as unknown as vscode.ChatRequest;
+      const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
-      const result = extractTargetFiles(req);
+      const result = await extractTargetFiles(req, stream);
       assert.deepStrictEqual(result, []);
     });
 
-    test("extractTargetFiles should ignore non-file references", function () {
+    test("extractTargetFiles should ignore non-file references", async function () {
       const req = {
+        prompt: "hoge",
         references: [
           {
             id: "vscode.file",
@@ -77,8 +82,9 @@ suite("Util Test Suite", function () {
           },
         ],
       } as unknown as vscode.ChatRequest;
+      const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
-      const result = extractTargetFiles(req);
+      const result = await extractTargetFiles(req, stream);
       assert.deepStrictEqual(result, ["/path/to/file1"]);
     });
   });
@@ -93,7 +99,58 @@ suite("Util Test Suite", function () {
       test(`timestampAsString should return ${expected} from ${date}`, function () {
         const result = timestampAsString(date);
         assert.strictEqual(result, expected);
-      });  
+      });
+    });
+  });
+
+  suite("extractFilesInDirectory Test Suite", function () {
+    let mockShowOpenDialog: sinon.SinonStub;
+    let mockFindFiles: sinon.SinonStub;
+    let mockMarkdown: sinon.SinonStub;
+
+    setup(function () {
+      mockShowOpenDialog = sinon.stub(vscode.window, "showOpenDialog");
+      mockFindFiles = sinon.stub(vscode.workspace, "findFiles");
+      mockMarkdown = sinon.stub();
+    });
+
+    teardown(function () {
+      mockShowOpenDialog.restore();
+      mockFindFiles.restore();
+    });
+
+    test("ディレクトリ選択がキャンセルされた場合、空の配列を返すべき", async function () {
+      mockShowOpenDialog.resolves(undefined);
+      const stream = { markdown: mockMarkdown } as unknown as vscode.ChatResponseStream;
+
+      const result = await extractFilesInDirectory("**/*.md", stream);
+      assert.deepStrictEqual(result, []);
+      sinon.assert.notCalled(mockMarkdown);
+    });
+
+    test("ディレクトリが選択されたが、フィルタパターンに一致するファイルがない場合、空の配列を返すべき", async function () {
+      mockShowOpenDialog.resolves([vscode.Uri.file("/path/to/directory")]);
+      mockFindFiles.resolves([]);
+      const stream = { markdown: mockMarkdown } as unknown as vscode.ChatResponseStream;
+
+      const result = await extractFilesInDirectory("**/*.md", stream);
+      assert.deepStrictEqual(result, []);
+      sinon.assert.calledOnce(mockMarkdown);
+      sinon.assert.calledWith(mockMarkdown, sinon.match.string);
+    });
+
+    test("ディレクトリが選択され、フィルタパターンに一致するファイルがある場合、ファイルパスを返すべき", async function () {
+      mockShowOpenDialog.resolves([vscode.Uri.file("/path/to/directory")]);
+      mockFindFiles.resolves([
+        vscode.Uri.file("/path/to/directory/file1.md"),
+        vscode.Uri.file("/path/to/directory/file2.md"),
+      ]);
+      const stream = { markdown: mockMarkdown } as unknown as vscode.ChatResponseStream;
+
+      const result = await extractFilesInDirectory("**/*.md", stream);
+      assert.deepStrictEqual(result, ["/path/to/directory/file1.md", "/path/to/directory/file2.md"]);
+      sinon.assert.calledThrice(mockMarkdown);
+      sinon.assert.calledWith(mockMarkdown, sinon.match.string);
     });
   });
 });
