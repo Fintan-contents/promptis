@@ -23,7 +23,6 @@ suite("chatHandler Test Suite", function () {
   vscode.window.showInformationMessage("Start all tests.");
 
   let mockGetConfiguration: sinon.SinonStub;
-  let mockSelectChatModels: sinon.SinonStub;
   let mockActiveTextEditor: sinon.SinonStub;
 
   const mockGetConfigurationReturns = {
@@ -47,24 +46,7 @@ suite("chatHandler Test Suite", function () {
   setup(function () {
     // VSCodeの設定を返却するメソッドをスタブ化
     mockGetConfiguration = sinon.stub(vscode.workspace, "getConfiguration").returns(mockGetConfigurationReturns);
-    // Chat Modelの選択は時系列で変更されるのでスタブ化
-    mockSelectChatModels = sinon.stub(vscode.lm, "selectChatModels").resolves([
-      {
-        sendRequest: sinon.stub().resolves({ text: ["response"] }),
-        name: "",
-        id: "",
-        vendor: "",
-        family: "",
-        version: "",
-        maxInputTokens: 0,
-        countTokens: function (
-          text: string | vscode.LanguageModelChatMessage,
-          token?: vscode.CancellationToken,
-        ): Thenable<number> {
-          throw new Error("Function not implemented.");
-        },
-      },
-    ]);
+
     // VSCodeのテキストエディタも、テストコードから状態を定義するのが面倒なのでスタブ化
     mockActiveTextEditor = sinon.stub(vscode.window, "activeTextEditor").value({
       // エディタ上で選択がなされていない状態とする
@@ -79,7 +61,6 @@ suite("chatHandler Test Suite", function () {
 
   teardown(function () {
     mockGetConfiguration.restore();
-    mockSelectChatModels.restore();
     mockActiveTextEditor.restore();
   });
 
@@ -97,24 +78,6 @@ suite("chatHandler Test Suite", function () {
 
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);
       assert.strictEqual(result, undefined);
-    });
-
-    test("chatHandler should return error if no chat model is found", async function () {
-      // 何も返却されないようにする
-      mockSelectChatModels.resolves([]);
-
-      const request: vscode.ChatRequest = {
-        command: "codereviewCodeStandards",
-        prompt: "hoge",
-        references: [],
-        toolReferences: [],
-        toolInvocationToken: {} as never,
-        model: {} as vscode.LanguageModelChat,
-      };
-      const { context, stream, token } = createPartOfChatRequest();
-
-      const result = await chatHandlerModule.chatHandler(request, context, stream, token);
-      assert.deepStrictEqual(result, { errorDetails: { message: "No chat model found" } });
     });
 
     test("chatHandler should return error if no command is specified", async function () {
@@ -191,49 +154,6 @@ suite("chatHandler Test Suite", function () {
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);
       assert.strictEqual(result, undefined);
     });
-  });
-});
-
-suite("selectChatModel Test Suite", function () {
-  test("selectChatModel should return a chat model if available", async function () {
-    const mockModels = [
-      {
-        sendRequest: sinon.stub().resolves({ text: ["response"] }),
-        name: "model1",
-        id: "1",
-        vendor: "copilot",
-        family: "gpt-4o",
-        version: "1.0",
-        maxInputTokens: 1000,
-        countTokens: sinon.stub().resolves(10),
-      },
-    ];
-
-    const mockSelectChatModels = sinon.stub(vscode.lm, "selectChatModels").resolves(mockModels);
-
-    const model = await chatHandlerModule.selectChatModel();
-    assert.ok(model);
-    assert.strictEqual(model.name, "model1");
-
-    mockSelectChatModels.restore();
-  });
-
-  test("selectChatModel should return null if no chat models are found", async function () {
-    const mockSelectChatModels = sinon.stub(vscode.lm, "selectChatModels").resolves([]);
-
-    const model = await chatHandlerModule.selectChatModel();
-    assert.strictEqual(model, null);
-
-    mockSelectChatModels.restore();
-  });
-
-  test("selectChatModel should handle errors and return null", async function () {
-    const mockSelectChatModels = sinon.stub(vscode.lm, "selectChatModels").rejects(new Error("Test error"));
-
-    const model = await chatHandlerModule.selectChatModel();
-    assert.strictEqual(model, null);
-
-    mockSelectChatModels.restore();
   });
 });
 
