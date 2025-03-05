@@ -106,7 +106,16 @@
         }
       }
     },
-    "commands": []
+    "commands": [
+      {
+        "command": "promptis.suppressOutput",
+        "title": "Promptis: Suppress Output"
+      },
+      {
+        "command": "promptis.verboseOutput",
+        "title": "Promptis: Verbose Output"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

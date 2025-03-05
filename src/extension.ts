@@ -33,6 +33,8 @@ export interface Command {
   execute: (context: vscode.ExtensionContext, ...args: any[]) => void;
 }
 
+export let verbose = true;
+
 /**
  * コマンドのマッピングを保持するオブジェクト。
  * 各コマンドは一意のキーで識別され、対応するコマンドオブジェクトを持つ。
@@ -40,7 +42,22 @@ export interface Command {
  * @type {{ [key: string]: Command }}
  * @property {Command} selectPromptDirectory - プロンプトディレクトリを選択するコマンド。
  */
-export const commandMap: { [key: string]: Command } = {};
+export const commandMap: { [key: string]: Command } = {
+  supressOutput: {
+    id: `${PREFIX}.suppressOutput`,
+    execute: (context: vscode.ExtensionContext) => {
+      verbose = false;
+      vscode.window.showInformationMessage("Output suppressed");
+    },
+  },
+  verboseOutput: {
+    id: `${PREFIX}.verboseOutput`,
+    execute: (context: vscode.ExtensionContext) => {
+      verbose = true;
+      vscode.window.showInformationMessage("Output set to verbose");
+    },
+  },
+};
 
 /**
  * コマンドを VSCode へ登録します。
@@ -49,6 +66,6 @@ export const commandMap: { [key: string]: Command } = {};
  */
 export function registerCommands(context: vscode.ExtensionContext, commandMap: { [key: string]: Command }) {
   for (const [_, value] of Object.entries(commandMap)) {
-    context.subscriptions.push(vscode.commands.registerCommand(value.id, (...args) => value.execute(context, ...args)));
+    context.subscriptions.push(vscode.commands.registerCommand(value.id, value.execute));
   }
 }

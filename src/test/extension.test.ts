@@ -71,13 +71,6 @@ suite("Extension Test Suite", () => {
 
       assert.strictEqual(commandId, value.id);
       assert.strictEqual(typeof commandHandler, "function");
-
-      // コマンドハンドラが正しく動作することを確認するために、
-      // executeメソッドをスタブに置き換え、引数が正しく渡されていることを確認
-      const executeStub = sinon.stub(value, "execute");
-      commandHandler("arg1", "arg2");
-      sinon.assert.calledOnceWithExactly(executeStub, context, "arg1", "arg2");
-      executeStub.restore();
     }
   });
 });

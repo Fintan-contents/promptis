@@ -72,6 +72,15 @@ In Promptis, you can also use the following chat variables:
 | `#dir:[Directory]` | By including `#dir` in the prompt, you can specify the directory to which the prompt will be applied. The prompt will be executed on all files under the specified directory. You can also directly specify the directory in the format `#dir:path/to/dir`. | `@promptis /codereviewCodeStandards #dir` |
 | `#filter:[GlobPattern]` | By including `#filter:[GlobPattern]` in the prompt, you can narrow down the files extracted by the `#dir` specification to only those that match the GlobPattern. For the patterns that can be specified, refer to [GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern). | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
 
+## Command Palette
+
+The following commands are available from the command palette:
+
+| Command Name | Description |
+|--------------|-------------|
+| `Promptis: Verbose Output` | Enable detailed output to Chat Window. This is the default mode. |
+| `Promptis: Suppress Output` | Suppress output to Chat Window. Effective for performance improvement when processing many files. |
+
 ## Requirements
 
 - [VS Code](https://code.visualstudio.com/) [version.1.91.0](https://code.visualstudio.com/updates/v1_91) or later

@@ -76,6 +76,15 @@ Promptisではさらに、次のチャット変数を利用できます。
 | `#dir:[Directory]` | プロンプト中に`#dir`を含めることで、プロンプトを適用するディレクトリを指定できる。指定したディレクトリ配下の全ファイルに対してプロンプトが実行される。また、`#dir:path/to/dir`の形式で直接ディレクトリを指定することも可能。 | `@promptis /codereviewCodeStandards #dir` |
 | `#filter:[GlobPattern]` | プロンプト中に`#filter:[GlobPattern]`を含めることで、`#dir`指定によって抽出されたファイルのうち、GlobPatternに合致するもののみを適用対象として絞り込める。指定できるパターンについては[GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern)を参照。 | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
 
+## Command Pallette
+
+次のコマンドをコマンドパレットから利用できる。
+
+| コマンド名 | 説明 |
+|------------|------|
+| `Promptis: Verbose Output` | Chat Windowへの詳細な出力を有効にします。デフォルトの動作モード。 |
+| `Promptis: Suppress Output` | Chat Windowへの出力を抑制します。大量のファイルを処理する際のパフォーマンス改善に有効。 |
+
 ## Requirements
 
 - [VS Code](https://code.visualstudio.com/) が[version.1.91.0](https://code.visualstudio.com/updates/v1_91)以降

@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
+import { verbose } from "./extension";
 
 /**
  * @interface
@@ -31,34 +32,49 @@ export class FileChatResponseStreamWrapper implements FileChatResponseStream {
   }
 
   anchor(value: vscode.Uri | vscode.Location, title?: string): void {
-    this.originalStream.anchor(value, title);
+    if (verbose) {
+      this.originalStream.anchor(value, title);
+    }
   }
   button(command: vscode.Command): void {
-    this.originalStream.button(command);
+    if (verbose) {
+      this.originalStream.button(command);
+    }
   }
   filetree(value: vscode.ChatResponseFileTree[], baseUri: vscode.Uri): void {
-    this.originalStream.filetree(value, baseUri);
+    if (verbose) {
+      this.originalStream.filetree(value, baseUri);
+    }
   }
   progress(value: string): void {
-    this.originalStream.progress(value);
+    if (verbose) {
+      this.originalStream.progress(value);
+    }
   }
   reference(
     value: vscode.Uri | vscode.Location,
     iconPath?: vscode.Uri | vscode.ThemeIcon | { light: vscode.Uri; dark: vscode.Uri },
   ): void {
-    this.originalStream.reference(value, iconPath);
+    if (verbose) {
+      this.originalStream.reference(value, iconPath);
+    }
   }
   push(part: vscode.ChatResponsePart): void {
-    this.originalStream.push(part);
+    if (verbose) {
+      this.originalStream.push(part);
+    }
   }
 
   /**
    * Markdown形式のテキストを保存対象に追加し、元のストリームにも書き出す
    * @param {string} text - Markdown形式のテキスト
+   * @param {boolean} force - 元のストリームに書き出すかどうか
    */
   markdown(text: string): void {
     this.content.push(text);
-    this.originalStream.markdown(text);
+    if (verbose) {
+      this.originalStream.markdown(text);
+    }
   }
 
   /**

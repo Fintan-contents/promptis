@@ -34,6 +34,9 @@ const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
  * 7. デバッグ用にリクエストの詳細をコンソールに出力する。
  */
 export const chatHandler: vscode.ChatRequestHandler = async (request, context, stream, token) => {
+  const startTime = Date.now();
+  const originalStream = stream;
+
   // ユーザから、コマンドが指定されているか確認する
   const command = request.command;
   if (!command) {
@@ -65,11 +68,15 @@ export const chatHandler: vscode.ChatRequestHandler = async (request, context, s
   const targetFiles = await extractTargetFiles(request, stream);
   if (targetFiles.length > 0) {
     // ファイル指定があれば、当該ファイルをレビューする
-    await processSourceFiles(targetFiles, promptFiles, request.model, token, stream);
+    await processSourceFiles(targetFiles, promptFiles, request.model, token, stream, originalStream);
   } else {
     // ファイル指定がなければ、エディタで選択されている内容をレビューする
     await processSelectedContent(promptFiles, request.model, token, stream);
   }
+
+  const endTime = Date.now();
+  const duration = endTime - startTime; // ミリ秒
+  originalStream.markdown(`\n\nDuration: ${duration} ms\n`);
 };
 
 export function getPromptDirectory(command: string): string | undefined {
@@ -93,14 +100,15 @@ export async function processSourceFiles(
   model: vscode.LanguageModelChat,
   token: vscode.CancellationToken,
   stream: vscode.ChatResponseStream,
+  originalStream: vscode.ChatResponseStream,
 ): Promise<void> {
   let counter = 0;
   const sourceNum = sourcePaths.length;
 
   // ソースファイルを軸にして、プロンプトを適用していく
   for (const sourcePath of sourcePaths) {
-    stream.markdown(`progress: ${counter + 1}/${sourceNum}\n`);
-    stream.markdown(`----\n`);
+    originalStream.markdown(`progress: ${counter + 1}/${sourceNum}\n`);
+    originalStream.markdown(`----\n`);
 
     const content = fs.readFileSync(sourcePath, { encoding: "utf8" });
     await processContent(content, sourcePath, promptPaths, model, token, stream);
