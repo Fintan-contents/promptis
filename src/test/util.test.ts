@@ -3,7 +3,7 @@ import * as path from "path";
 import proxyquire from "proxyquire";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import { extractFilesInDirectory, extractTargetFiles, findPromptFiles, timestampAsString } from "../util";
+import { extractFilesInDirectory, findPromptFiles, timestampAsString } from "../util";
 
 /*
  * fs.existsSync のスタブ
@@ -13,8 +13,9 @@ import { extractFilesInDirectory, extractTargetFiles, findPromptFiles, timestamp
  */
 const fsStub = {
   existsSync: sinon.stub(),
+  statSync: sinon.stub(),
 };
-const { getUserSpecifiedDirectory } = proxyquire("../util", { fs: fsStub });
+const { getUserSpecifiedDirectory, extractTargetFiles } = proxyquire("../util", { fs: fsStub });
 
 suite("Util Test Suite", function () {
   let mockShowErrorMessage: sinon.SinonStub;
@@ -55,6 +56,7 @@ suite("Util Test Suite", function () {
     setup(function () {
       mockShowOpenDialog = sinon.stub(vscode.window, "showOpenDialog");
       mockFindFiles = sinon.stub(vscode.workspace, "findFiles");
+      fsStub.existsSync.reset();
     });
 
     teardown(function () {
@@ -67,19 +69,34 @@ suite("Util Test Suite", function () {
         prompt: "hoge",
         references: [
           {
-            id: "vscode.file",
+            id: "vscode.hoge",
             value: vscode.Uri.file("/path/to/file1"),
           },
           {
-            id: "vscode.file",
+            id: "vscode.fuga",
             value: vscode.Uri.file("/path/to/file2"),
+          },
+          {
+            id: "vscode.piyo",
+            value: vscode.Uri.file("/path/to/dir"),
           },
         ],
       } as unknown as vscode.ChatRequest;
+
+      fsStub.statSync.withArgs("/path/to/file1").returns({ isDirectory: () => false });
+      fsStub.statSync.withArgs("/path/to/file2").returns({ isDirectory: () => false });
+      fsStub.statSync.withArgs("/path/to/dir").returns({ isDirectory: () => true });
+      mockFindFiles.resolves([vscode.Uri.file("/path/to/dir/file1.md"), vscode.Uri.file("/path/to/dir/file2.md")]);
+
       const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
       const result = await extractTargetFiles(req, stream);
-      assert.deepStrictEqual(result, ["/path/to/file2", "/path/to/file1"]);
+      assert.deepStrictEqual(result, [
+        "/path/to/file1",
+        "/path/to/file2",
+        "/path/to/dir/file1.md",
+        "/path/to/dir/file2.md",
+      ]);
     });
 
     test("extractTargetFilesが参照なしのケースを処理できるべき", async function () {
@@ -98,19 +115,26 @@ suite("Util Test Suite", function () {
         prompt: "hoge",
         references: [
           {
-            id: "vscode.file",
+            id: "vscode.hoge",
             value: vscode.Uri.file("/path/to/file1"),
           },
           {
-            id: "vscode.other",
+            id: "vscode.fuga",
             value: vscode.Uri.file("/path/to/file2"),
+          },
+          {
+            id: "vscode.piyo",
+            value: "this is string type",
           },
         ],
       } as unknown as vscode.ChatRequest;
+
+      fsStub.statSync.withArgs("/path/to/file1").returns({ isDirectory: () => false });
+      fsStub.statSync.withArgs("/path/to/file2").returns({ isDirectory: () => false });
       const stream = { markdown: sinon.stub(), progress: sinon.stub() } as unknown as vscode.ChatResponseStream;
 
       const result = await extractTargetFiles(req, stream);
-      assert.deepStrictEqual(result, ["/path/to/file1"]);
+      assert.deepStrictEqual(result, ["/path/to/file1", "/path/to/file2"]);
     });
 
     test("extractTargetFilesが、プロンプトで#dirを指定されたときは指定ディレクトリ配下のファイルも返却すべき", async function () {
