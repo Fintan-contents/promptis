@@ -68,7 +68,11 @@ Chatウィンドウから @promptis に対して指示（コマンド）を出�
 
 ### チャット変数
 
-GitHub Copilot Chatで利用できる`#file`や`#selection`などの[チャット変数](https://code.visualstudio.com/docs/copilot/copilot-chat#_chat-context)はそのままご利用いただけます。  
+GitHub Copilot Chatで利用できる[チャットコンテキスト](https://code.visualstudio.com/docs/copilot/chat/copilot-chat#_add-chat-context)のうち、`#<file | folder>`はそのままご利用いただけます。 
+
+> [!NOTE]
+> VSCode version 1.100以降では、`#file`によるサジェストが表示されなくなりましたが、`#`を入力した後のサジェストを利用することで引き続きファイル指定ができます。また、Chatウィンドウにファイルやディレクトリをドラッグ＆ドロップすることで、自動的にファイル参照を追加することも可能です。
+
 Promptisではさらに、次のチャット変数を利用できます。
 
 | チャット変数 | 説明 | 例 |

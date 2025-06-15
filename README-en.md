@@ -64,7 +64,11 @@ For prompt examples, please refer to our [Generative AI Engineering Utilization 
 
 ### Chat Variables
 
-The [chat variables](https://code.visualstudio.com/docs/copilot/copilot-chat#_chat-context) such as `#file` and `#selection` available in GitHub Copilot Chat can be used as is.  
+Of the [chat contexts](https://code.visualstudio.com/docs/copilot/chat/copilot-chat#_add-chat-context) available in GitHub Copilot Chat, `#<file | folder>` can be used as is.  
+
+> [!NOTE]
+> Although `#file` no longer appears in suggestions, you can still specify files by using the suggestions that appear after typing `#`. Additionally, you can automatically add file references by dragging and dropping files or directories into the Chat window.
+
 In Promptis, you can also use the following chat variables:
 
 | Chat Variable | Description | Example |
