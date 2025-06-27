@@ -130,7 +130,7 @@
     "build": "npm-run-all -s build:license build:vsix"
   },
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.14.0",
+    "@openapitools/openapi-generator-cli": "^2.18.4",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
     "@types/proxyquire": "^1.3.31",
