@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for extension.ts</title>
+    <title>Code coverage report for src/output/FileOnlyOutputStrategy.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="prettify.css" />
-    <link rel="stylesheet" href="base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(sort-arrow-sprite.png);
+            background-image: url(../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="index.html">All files</a> extension.ts</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/output</a> FileOnlyOutputStrategy.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.29% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>52/54</span>
+                <span class='fraction'>54/54</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>5/6</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.29% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>52/54</span>
+                <span class='fraction'>54/54</span>
             </div>
         
             
@@ -116,45 +116,7 @@
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -171,77 +133,112 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import * as vscode from "vscode";
-import { chatHandler } from "./chatHandler";
-&nbsp;
-export const PREFIX = "promptis";
-const PARTICIPANT_ID = "promptis.promptis";
-&nbsp;
-export function activate(context: vscode.ExtensionContext) {
-  // Participantと、当該Participantへのメンションに反応するハンドラを設定
-  const promptis = vscode.chat.createChatParticipant(PARTICIPANT_ID, chatHandler);
-&nbsp;
-  // Participantのアイコンパスを設定する
-  promptis.iconPath = vscode.Uri.joinPath(context.extensionUri, "images", "icon.png");
-&nbsp;
-  // コマンドをVSCodeに登録し、それぞれのコマンド実行時の動作を設定
-  for (const [key, value] of Object.entries(commandMap)) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >    context.subscriptions.push(vscode.commands.registerCommand(value.id, (...args) =&gt; value.execute(context, ...args)));</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
-}
-&nbsp;
-export function deactivate() {}
-&nbsp;
-/**
- * コマンドIDと対応する実行関数をもつInterface
- *
- * @interface Command
- * @property {string} id - コマンドの識別子
- * @property {(context: vscode.ExtensionContext, ...args: any[]) =&gt; void} f - コマンドが実行されたときに呼び出される関数
- * @param {vscode.ExtensionContext} context - 拡張機能のライフサイクルを管理するためのコンテキストオブジェクト
- * @param {...any[]} args - コマンドに渡される追加の引数
- */
-export interface Command {
-  id: string;
-  execute: (context: vscode.ExtensionContext, ...args: any[]) =&gt; void;
-}
-&nbsp;
-/**
- * コマンドのマッピングを保持するオブジェクト。
- * 各コマンドは一意のキーで識別され、対応するコマンドオブジェクトを持つ。
- *
- * @type {{ [key: string]: Command }}
- * @property {Command} selectPromptDirectory - プロンプトディレクトリを選択するコマンド。
- */
-export const commandMap: { [key: string]: Command } = {};
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import path from "path";
+import * as vscode from "vscode";
+import { FileChatResponseStreamWrapper } from "../chatutil";
+import { OutputStrategy } from "./OutputStrategy";
 &nbsp;
 /**
- * コマンドを VSCode へ登録します。
- *
- * @param {vscode.ExtensionContext} context - 拡張機能のライフサイクルを管理するためのコンテキストオブジェクト
+ * ファイル中心出力戦略
+ * ChatWindowの出力を最小限に抑え、詳細はファイルに保存
  */
-export function registerCommands(context: vscode.ExtensionContext, commandMap: { [key: string]: Command }) {
-  for (const [_, value] of Object.entries(commandMap)) {
-    context.subscriptions.push(vscode.commands.registerCommand(value.id, (...args) =&gt; value.execute(context, ...args)));
+export class FileOnlyOutputStrategy implements OutputStrategy {
+  /**
+   * 開始時のみ簡潔なサマリー表示
+   */
+  outputProgress(counter: number, total: number, stream: vscode.ChatResponseStream): void {
+    // 最初の処理時のみ全体のサマリーを表示
+    if (counter === 0) {
+      stream.markdown(`📝 Starting review for ${total} file(s). Results will be saved to file.\n`);
+      stream.markdown(`----\n`);
+    }
   }
-}
-&nbsp;</pre></td></tr></table></pre>
+&nbsp;
+  /**
+   * 最小限の進捗表示（✅ prompt → target）
+   */
+  outputReviewDetails(promptFile: string, contentFilePath: string, stream: vscode.ChatResponseStream): void {
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    const promptName = workspaceRoot
+      ? path.relative(workspaceRoot, promptFile)
+      : path.basename(promptFile);
+    const targetName = workspaceRoot
+      ? path.relative(workspaceRoot, contentFilePath)
+      : path.basename(contentFilePath);
+&nbsp;
+    stream.markdown(`✅ ${promptName} → ${targetName}\n`);
+  }
+&nbsp;
+  /**
+   * ChatWindow非経由でファイル直接出力
+   * content配列にのみ蓄積し、ChatWindowには出力しない
+   */
+  async outputReviewResult(fragments: AsyncIterable&lt;string&gt;, stream: vscode.ChatResponseStream): Promise&lt;void&gt; {
+    if (stream instanceof FileChatResponseStreamWrapper) {
+      // ファイル出力専用の場合は、ChatWindowを経由せずに直接ファイルに書き込み
+      for await (const fragment of fragments) {
+        stream.writeDirectToFile(fragment);
+      }
+    } else {
+      // フォールバック: 通常のstream（テスト等）
+      for await (const fragment of fragments) {
+        stream.markdown(fragment);
+      }
+    }
+  }
+}</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-27T11:04:47.238Z
+                at 2026-02-18T10:14:49.120Z
             </div>
-        <script src="prettify.js"></script>
+        <script src="../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="sorter.js"></script>
-        <script src="block-navigation.js"></script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
     </body>
 </html>
     
