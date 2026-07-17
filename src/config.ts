@@ -57,6 +57,20 @@ export class Config {
   }
 
   /**
+   * Git差分レビュー用プロンプトディレクトリのパスを取得する
+   * 未設定の場合はコード規約レビュー用プロンプトを利用する
+   * @returns ディレクトリパス、または未定義
+   */
+  static getCodeReviewDiffPath(): string | undefined {
+    const diffPath = vscode.workspace.getConfiguration().get<string>("codeReview.diffPath");
+    if (diffPath) {
+      return diffPath;
+    }
+
+    return Config.getCodeReviewStandardPath();
+  }
+
+  /**
    * リバースエンジニアリング用プロンプト格納ディレクトリのパスを取得します。
    * @returns ディレクトリパス、または未定義
    */
@@ -104,5 +118,13 @@ export class Config {
    */
   static getOutputMode(): "chat-only" | "file-only" {
     return vscode.workspace.getConfiguration().get<"chat-only" | "file-only">("promptis.output.mode", "chat-only");
+  }
+
+  /**
+   * Git差分レビューで使用するデフォルトの差分範囲を取得します。
+   * @returns デフォルトのGit差分範囲
+   */
+  static getGitDiffDefaultRange(): string {
+    return vscode.workspace.getConfiguration().get<string>("promptis.git.defaultDiffRange", "origin/main...HEAD");
   }
 }

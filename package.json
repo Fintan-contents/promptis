@@ -46,6 +46,10 @@
             "description": "Review the Code With Non Functional Requirements"
           },
           {
+            "name": "codereviewDiff",
+            "description": "Review the Git Diff Only"
+          },
+          {
             "name": "reverseEngineering",
             "description": "Reverse Engineer the Code"
           },
@@ -74,15 +78,20 @@
           "description": "Absolute path of the directory storing code review prompts (from a non-functional perspective)",
           "order": 3
         },
+        "codeReview.diffPath": {
+          "type": "string",
+          "description": "Absolute path of the directory storing prompts for Git diff reviews. If omitted, codeReview.codeStandardPath is used.",
+          "order": 4
+        },
         "reverseEngineering.promptsPath": {
           "type": "string",
           "description": "Absolute path of the directory storing prompts for reverse engineering",
-          "order": 4
+          "order": 5
         },
         "drawDiagrams.promptsPath": {
           "type": "string",
           "description": "Absolute path of the directory for prompts used in diagram generation",
-          "order": 5
+          "order": 6
         },
         "prompt.excludeFilePatterns": {
           "type": "array",
@@ -91,18 +100,18 @@
           },
           "default": [],
           "markdownDescription": "Patterns for filenames of prompt files under the prompt storage directory that should not be executed (e.g., **/dir/*.md). Refer to the [minimatch README](https://github.com/isaacs/minimatch) for writable patterns.",
-          "order": 6
+          "order": 7
         },
         "chat.outputPath": {
           "type": "string",
           "description": "Absolute path of the directory for outputting chat content backups",
-          "order": 7
+          "order": 8
         },
         "telemetry.enable": {
           "type": "boolean",
           "description": "Enable telemetry to help improve the extension",
           "default": true,
-          "order": 8
+          "order": 9
         },
         "promptis.output.mode": {
           "type": "string",
@@ -112,7 +121,13 @@
           ],
           "default": "chat-only",
           "description": "Output mode for review results. 'chat-only' shows detailed output in chat window, 'file-only' minimizes chat output and saves detailed results to file.",
-          "order": 9
+          "order": 10
+        },
+        "promptis.git.defaultDiffRange": {
+          "type": "string",
+          "default": "origin/main...HEAD",
+          "description": "Default Git diff range for /codereviewDiff. Examples: origin/main...HEAD, origin/develop...HEAD, HEAD~3..HEAD.",
+          "order": 11
         }
       }
     },

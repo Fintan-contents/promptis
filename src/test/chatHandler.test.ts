@@ -83,6 +83,11 @@ suite("chatHandler Test Suite", function () {
       assert.strictEqual(result, undefined);
     });
 
+    test("getPromptDirectory should support codereviewDiff command", function () {
+      const result = chatHandlerModule.getPromptDirectory("codereviewDiff");
+      assert.strictEqual(result, path.normalize(`${__dirname}/../../src/test/__tests__/`));
+    });
+
     test("chatHandler should return error if no command is specified", async function () {
       const request: vscode.ChatRequest = {
         command: "", // コマンドを指定しない
