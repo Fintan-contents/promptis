@@ -165,6 +165,51 @@ suite("chatHandler Test Suite", function () {
       const result = await chatHandlerModule.chatHandler(request, context, stream, token);
       assert.strictEqual(result, undefined);
     });
+
+    test("chatHandler should limit prompt files to the specified prompt subdirectory", async function () {
+      const sendRequest = sinon.stub().resolves({ text: ["response"] });
+      const request: vscode.ChatRequest = {
+        command: "codereviewCodeStandards",
+        prompt: "hoge #promptDir:promptdirs/api-communication",
+        references: [],
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {
+          sendRequest,
+        } as unknown as vscode.LanguageModelChat,
+      };
+      const { context, stream, token } = createPartOfChatRequest();
+
+      const result = await chatHandlerModule.chatHandler(request, context, stream, token);
+
+      assert.strictEqual(result, undefined);
+      sinon.assert.calledOnce(sendRequest);
+      sinon.assert.calledWithMatch(stream.markdown as sinon.SinonSpy, "Prompt directory scope: `promptdirs/api-communication`");
+    });
+
+    test("chatHandler should reject prompt subdirectories outside the configured prompt directory", async function () {
+      const sendRequest = sinon.stub().resolves({ text: ["response"] });
+      const request: vscode.ChatRequest = {
+        command: "codereviewCodeStandards",
+        prompt: "hoge #promptDir:../frontmatter",
+        references: [],
+        toolReferences: [],
+        toolInvocationToken: {} as never,
+        model: {
+          sendRequest,
+        } as unknown as vscode.LanguageModelChat,
+      };
+      const { context, stream, token } = createPartOfChatRequest();
+
+      const result = await chatHandlerModule.chatHandler(request, context, stream, token);
+
+      assert.deepStrictEqual(result, {
+        errorDetails: {
+          message: "#promptDir must stay under the configured prompt directory: ../frontmatter",
+        },
+      });
+      sinon.assert.notCalled(sendRequest);
+    });
   });
 });
 

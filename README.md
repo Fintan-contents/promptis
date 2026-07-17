@@ -80,6 +80,25 @@ Promptisではさらに、次のチャット変数を利用できます。
 | ------------ | ---- | -- |
 | `#dir:[Directory]` | プロンプト中に`#dir`を含めることで、プロンプトを適用するディレクトリを指定できる。指定したディレクトリ配下の全ファイルに対してプロンプトが実行される。また、`#dir:path/to/dir`の形式で直接ディレクトリを指定することも可能。 | `@promptis /codereviewCodeStandards #dir` |
 | `#filter:[GlobPattern]` | プロンプト中に`#filter:[GlobPattern]`を含めることで、`#dir`指定によって抽出されたファイルのうち、GlobPatternに合致するもののみを適用対象として絞り込める。指定できるパターンについては[GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern)を参照。 | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
+| `#promptDir:[Subdirectory]` | コマンドに対応するプロンプト格納ディレクトリ配下のサブディレクトリだけを実行対象にする。`#promptDir`だけを指定した場合は、プロンプトファイルを含むサブディレクトリを選択できる。 | `@promptis /codereviewCodeStandards #promptDir:accessibility #file:src/App.tsx` |
+
+#### プロンプトサブディレクトリの指定
+
+レビュー観点ごとにプロンプトをサブディレクトリへ分けている場合、`#promptDir`で実行する観点フォルダを絞り込めます。`#promptDir`はプロンプトファイル側の絞り込みであり、`#dir`はレビュー対象ファイル側の絞り込みです。
+
+例えば、`codeReview.codeStandardPath`に`/path/to/prompts_for_react`を設定している場合、次の指示では`/path/to/prompts_for_react/accessibility`配下の`.md`ファイルだけを実行します。
+
+```text
+@promptis /codereviewCodeStandards #promptDir:accessibility #file:src/App.tsx
+```
+
+サブディレクトリ名に空白を含む場合はダブルクォートで囲んでください。
+
+```text
+@promptis /codereviewCodeStandards #promptDir:"accessibility checks" #file:src/App.tsx
+```
+
+`#promptDir`だけを入力した場合、Promptisは設定済みプロンプト格納ディレクトリ配下から、`.md`ファイルを含むサブディレクトリを選択肢として表示します。VS Code Chatのスラッシュコマンド候補はExtensionの`package.json`で静的に定義されるため、ローカルの任意サブディレクトリを`/codereviewCodeStandards_accessibility`のような動的コマンド候補として表示することは現在の実装対象外です。
 
 ### プロンプトファイルのFront Matter
 

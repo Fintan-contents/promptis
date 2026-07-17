@@ -76,6 +76,25 @@ In Promptis, you can also use the following chat variables:
 | ------------- | ----------- | ------- |
 | `#dir:[Directory]` | By including `#dir` in the prompt, you can specify the directory to which the prompt will be applied. The prompt will be executed on all files under the specified directory. You can also directly specify the directory in the format `#dir:path/to/dir`. | `@promptis /codereviewCodeStandards #dir` |
 | `#filter:[GlobPattern]` | By including `#filter:[GlobPattern]` in the prompt, you can narrow down the files extracted by the `#dir` specification to only those that match the GlobPattern. For the patterns that can be specified, refer to [GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern). | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
+| `#promptDir:[Subdirectory]` | Limits execution to a subdirectory under the prompt storage directory for the selected command. If you specify only `#promptDir`, you can pick a subdirectory that contains prompt files. | `@promptis /codereviewCodeStandards #promptDir:accessibility #file:src/App.tsx` |
+
+#### Selecting a Prompt Subdirectory
+
+When you organize prompts by review perspective in subdirectories, `#promptDir` narrows the prompt files to the selected perspective folder. `#promptDir` filters prompt files, while `#dir` filters target files.
+
+For example, if `codeReview.codeStandardPath` is set to `/path/to/prompts_for_react`, the following request executes only `.md` files under `/path/to/prompts_for_react/accessibility`.
+
+```text
+@promptis /codereviewCodeStandards #promptDir:accessibility #file:src/App.tsx
+```
+
+If the subdirectory name contains spaces, wrap it in double quotes.
+
+```text
+@promptis /codereviewCodeStandards #promptDir:"accessibility checks" #file:src/App.tsx
+```
+
+If you type only `#promptDir`, Promptis shows subdirectories under the configured prompt storage directory that contain `.md` files. VS Code Chat slash command suggestions are statically contributed from the extension `package.json`, so dynamically showing arbitrary local subdirectories as commands such as `/codereviewCodeStandards_accessibility` is outside the current implementation scope.
 
 ### Prompt File Front Matter
 

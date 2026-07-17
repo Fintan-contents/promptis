@@ -5,6 +5,7 @@ import { postUsage } from "./api";
 import { FileChatResponseStreamWrapper } from "./chatutil";
 import { Config } from "./config";
 import { OutputStrategyFactory } from "./output";
+import { resolvePromptDirectoryScope } from "./promptSubdirectory";
 import { extractTargetFiles, filterPromptsByTarget, findPromptFiles, parsePromptFile, timestampAsString, type PromptMetadata } from "./util";
 
 type CommandPromptPathMap = Map<string, () => string | undefined>;
@@ -45,14 +46,26 @@ export const chatHandler: vscode.ChatRequestHandler = async (request, context, s
   await postUsage(command);
 
   // コマンドに対応するプロンプトの格納ディレクトリを取得する。
-  const promptDir = getPromptDirectory(command);
-  if (!promptDir) {
+  const basePromptDir = getPromptDirectory(command);
+  if (!basePromptDir) {
     return createErrorResponse(`No prompt path found for command: ${command}`, stream);
   }
+  console.info(`Base prompt directory: ${basePromptDir}`);
+
+  const promptExcludeFilePatterns = Config.getPromptExcludeFilePatterns();
+  const promptDirectoryScope = await resolvePromptDirectoryScope(basePromptDir, request.prompt, promptExcludeFilePatterns);
+  if (!promptDirectoryScope.ok) {
+    return createErrorResponse(promptDirectoryScope.errorMessage, stream);
+  }
+
+  const promptDir = promptDirectoryScope.promptDir;
   console.info(`Prompt directory: ${promptDir}`);
+  if (promptDirectoryScope.relativePath) {
+    stream.markdown(`Prompt directory scope: \`${promptDirectoryScope.relativePath}\`\n\n`);
+  }
 
   // 格納ディレクトリからプロンプトのファイルを取得する
-  const promptFiles = findPromptFiles(promptDir, Config.getPromptExcludeFilePatterns());
+  const promptFiles = findPromptFiles(promptDir, promptExcludeFilePatterns);
   if (promptFiles.length === 0) {
     return createErrorResponse(`No prompt files found in ${promptDir}`, stream);
   }
