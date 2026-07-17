@@ -62,6 +62,7 @@ Chatウィンドウから @promptis に対して指示（コマンド）を出�
 | `codereviewCodeStandards`       | コード基準に関する一連のコードレビューを行う |
 | `codereviewFunctional`          | 機能観点のコードレビューを行う |
 | `codereviewNonFunctional`       | 非機能観点のコードレビューを行う |
+| `codereviewDiff`                | Git差分のみを対象にコードレビューを行う |
 | `reverseEngineering`  | ソースコードに対するリバースエンジニアリングを行う |
 | `drawDiagrams`                  | ソースコードから図式を作成する |
 
@@ -80,6 +81,26 @@ Promptisではさらに、次のチャット変数を利用できます。
 | ------------ | ---- | -- |
 | `#dir:[Directory]` | プロンプト中に`#dir`を含めることで、プロンプトを適用するディレクトリを指定できる。指定したディレクトリ配下の全ファイルに対してプロンプトが実行される。また、`#dir:path/to/dir`の形式で直接ディレクトリを指定することも可能。 | `@promptis /codereviewCodeStandards #dir` |
 | `#filter:[GlobPattern]` | プロンプト中に`#filter:[GlobPattern]`を含めることで、`#dir`指定によって抽出されたファイルのうち、GlobPatternに合致するもののみを適用対象として絞り込める。指定できるパターンについては[GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern)を参照。 | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
+| `#range:[GitRange]` | `/codereviewDiff`で使用するGit差分範囲を指定できる。未指定時は`promptis.git.defaultDiffRange`の値を使う。 | `@promptis /codereviewDiff #range:origin/develop...HEAD` |
+
+### Git差分のみをレビューする
+
+`/codereviewDiff`を使うと、ファイル全体ではなくGitのUnified diffのみをレビュー対象にできます。デフォルトでは`origin/main...HEAD`の差分を取得します。
+
+```text
+@promptis /codereviewDiff
+```
+
+差分範囲は`#range`で変更できます。
+
+```text
+@promptis /codereviewDiff #range:origin/develop...HEAD
+@promptis /codereviewDiff #range:HEAD~3..HEAD
+```
+
+PromptisはVS Code標準のGit拡張（`vscode.git`）から差分を取得し、変更ファイルごとのUnified diffを既存のプロンプトに渡します。削除ファイルは新側のレビュー対象が存在しないためスキップされます。
+
+`/codereviewDiff`は、`codeReview.diffPath`が設定されている場合はそのディレクトリのプロンプトを使います。未設定の場合は`codeReview.codeStandardPath`のプロンプトを使います。
 
 ### プロンプトファイルのFront Matter
 

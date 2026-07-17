@@ -58,6 +58,7 @@ The commands you can instruct are as follows:
 |`codereviewCodeStandards` | Conduct a series of code reviews on code standards |
 |`codereviewFunctional` | Conduct a code review from a functional perspective |
 |`codereviewNonFunctional` | Conduct a code review from a non-functional perspective |
+|`codereviewDiff` | Conduct a code review only on Git diff content |
 |`reverseEngineering` | Conduct reverse engineering on the source code |
 | `drawDiagrams` | Create diagrams from the source code |
 
@@ -76,6 +77,26 @@ In Promptis, you can also use the following chat variables:
 | ------------- | ----------- | ------- |
 | `#dir:[Directory]` | By including `#dir` in the prompt, you can specify the directory to which the prompt will be applied. The prompt will be executed on all files under the specified directory. You can also directly specify the directory in the format `#dir:path/to/dir`. | `@promptis /codereviewCodeStandards #dir` |
 | `#filter:[GlobPattern]` | By including `#filter:[GlobPattern]` in the prompt, you can narrow down the files extracted by the `#dir` specification to only those that match the GlobPattern. For the patterns that can be specified, refer to [GlobPattern](https://code.visualstudio.com/api/references/vscode-api#GlobPattern). | `@promptis /codereviewCodeStandards #dir #filter:**/*.{ts,js}`
+| `#range:[GitRange]` | Specifies the Git diff range used by `/codereviewDiff`. If omitted, Promptis uses `promptis.git.defaultDiffRange`. | `@promptis /codereviewDiff #range:origin/develop...HEAD` |
+
+### Reviewing Git Diff Only
+
+Use `/codereviewDiff` to review Git unified diff content instead of whole files. By default, Promptis reviews `origin/main...HEAD`.
+
+```text
+@promptis /codereviewDiff
+```
+
+You can override the diff range with `#range`.
+
+```text
+@promptis /codereviewDiff #range:origin/develop...HEAD
+@promptis /codereviewDiff #range:HEAD~3..HEAD
+```
+
+Promptis reads diff content through VS Code's built-in Git extension (`vscode.git`) and sends each changed file's unified diff to the existing prompt execution flow. Deleted files are skipped because they have no new side to review.
+
+`/codereviewDiff` uses prompts from `codeReview.diffPath` when configured. If it is not configured, Promptis falls back to `codeReview.codeStandardPath`.
 
 ### Prompt File Front Matter
 

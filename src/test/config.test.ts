@@ -44,6 +44,21 @@ suite("Config Test Suite", () => {
       assert.strictEqual(result, "code/review/non-functional/path");
     });
 
+    test("should return the Git diff review path using Config class", function () {
+      const getStub = mockGetConfiguration().get as sinon.SinonStub;
+      getStub.withArgs("codeReview.diffPath").returns("code/review/diff/path");
+      const result = Config.getCodeReviewDiffPath();
+      assert.strictEqual(result, "code/review/diff/path");
+    });
+
+    test("should use code review standard path if Git diff review path is not configured", function () {
+      const getStub = mockGetConfiguration().get as sinon.SinonStub;
+      getStub.withArgs("codeReview.diffPath").returns(undefined);
+      getStub.withArgs("codeReview.codeStandardPath").returns("code/review/standard/path");
+      const result = Config.getCodeReviewDiffPath();
+      assert.strictEqual(result, "code/review/standard/path");
+    });
+
     test("should return the reverse engineering prompt path using Config class", function () {
       const getStub = mockGetConfiguration().get as sinon.SinonStub;
       getStub.withArgs("reverseEngineering.promptsPath").returns("reverse/engineering/prompts/path");
@@ -112,6 +127,20 @@ suite("Config Test Suite", () => {
       getStub.withArgs("promptis.output.mode", "chat-only").returns("chat-only");
       const result = Config.getOutputMode();
       assert.strictEqual(result, "chat-only");
+    });
+
+    test("should return the default Git diff range", function () {
+      const getStub = mockGetConfiguration().get as sinon.SinonStub;
+      getStub.withArgs("promptis.git.defaultDiffRange", "origin/main...HEAD").returns("origin/main...HEAD");
+      const result = Config.getGitDiffDefaultRange();
+      assert.strictEqual(result, "origin/main...HEAD");
+    });
+
+    test("should return configured Git diff range", function () {
+      const getStub = mockGetConfiguration().get as sinon.SinonStub;
+      getStub.withArgs("promptis.git.defaultDiffRange", "origin/main...HEAD").returns("origin/develop...HEAD");
+      const result = Config.getGitDiffDefaultRange();
+      assert.strictEqual(result, "origin/develop...HEAD");
     });
   });
 });

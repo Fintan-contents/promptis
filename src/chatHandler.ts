@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { postUsage } from "./api";
 import { FileChatResponseStreamWrapper } from "./chatutil";
 import { Config } from "./config";
+import * as gitDiff from "./gitDiff";
 import { OutputStrategyFactory } from "./output";
 import { extractTargetFiles, filterPromptsByTarget, findPromptFiles, parsePromptFile, timestampAsString, type PromptMetadata } from "./util";
 
@@ -12,6 +13,7 @@ const commandPromptDirectoryMap: CommandPromptPathMap = new Map([
   ["codereviewCodeStandards", Config.getCodeReviewStandardPath],
   ["codereviewFunctional", Config.getCodeReviewFunctionalPath],
   ["codereviewNonFunctional", Config.getCodeReviewNonFunctionalPath],
+  ["codereviewDiff", Config.getCodeReviewDiffPath],
   ["reverseEngineering", Config.getReverseEngineeringPromptPath],
   ["drawDiagrams", Config.getDrawDiagramsPromptPath],
 ]);
@@ -71,6 +73,11 @@ export const chatHandler: vscode.ChatRequestHandler = async (request, context, s
     // ResponseStream をラップして、ファイルに保存するようにする
     stream = new FileChatResponseStreamWrapper(stream, makeChatFilePath(outputDirPath));
   }
+
+  if (command === "codereviewDiff") {
+    return processGitDiffReview(request, promptMetadata, request.model, token, stream);
+  }
+
   // ユーザの Chat Request 中で指定されたレビュー対象ファイルを取得する
   const targetFiles = await extractTargetFiles(request, stream);
   if (targetFiles.length > 0) {
@@ -85,6 +92,77 @@ export const chatHandler: vscode.ChatRequestHandler = async (request, context, s
 export function getPromptDirectory(command: string): string | undefined {
   const dir = commandPromptDirectoryMap.get(command)?.();
   return dir;
+}
+
+export async function processGitDiffReview(
+  request: vscode.ChatRequest,
+  promptMetadata: PromptMetadata[],
+  model: vscode.LanguageModelChat,
+  token: vscode.CancellationToken,
+  stream: vscode.ChatResponseStream,
+): Promise<void | vscode.ChatResult> {
+  const range = gitDiff.extractDiffRange(request.prompt, Config.getGitDiffDefaultRange());
+  let repo: gitDiff.GitRepository | undefined;
+  let diffFiles: gitDiff.GitDiffFile[];
+
+  try {
+    repo = await gitDiff.getGitRepository();
+    if (!repo) {
+      return createErrorResponse("No Git repository found in the current workspace.", stream);
+    }
+
+    diffFiles = await gitDiff.getDiffFiles(repo, range);
+  } catch (error) {
+    return createErrorResponse(`Failed to get Git diff for range ${range}: ${errorToMessage(error)}`, stream);
+  }
+
+  if (diffFiles.length === 0) {
+    stream.markdown(`No Git diff found for \`${range}\`.\n`);
+    return;
+  }
+
+  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? repo.rootUri.fsPath;
+  const processableFiles: Array<{ diffFile: gitDiff.GitDiffFile; applicablePrompts: PromptMetadata[] }> = [];
+  const skippedFiles: string[] = [];
+
+  for (const diffFile of diffFiles) {
+    if (diffFile.changeType === "deleted") {
+      skippedFiles.push(`${diffFile.relativePath} (deleted file has no new side)`);
+      continue;
+    }
+
+    if (!gitDiff.hasReviewableHunks(diffFile)) {
+      skippedFiles.push(`${diffFile.relativePath} (no reviewable hunks)`);
+      continue;
+    }
+
+    const applicablePrompts = filterPromptsByTarget(promptMetadata, diffFile.filePath, workspaceRoot);
+    if (applicablePrompts.length === 0) {
+      skippedFiles.push(`${diffFile.relativePath} (no matching prompts)`);
+      continue;
+    }
+
+    processableFiles.push({ diffFile, applicablePrompts });
+  }
+
+  if (processableFiles.length === 0) {
+    stream.markdown(`No reviewable Git diff files found for \`${range}\`.\n`);
+    outputSkippedDiffFiles(skippedFiles, stream);
+    return;
+  }
+
+  const strategy = OutputStrategyFactory.create(Config.getOutputMode());
+  let processedCount = 0;
+
+  stream.markdown(`Reviewing ${processableFiles.length} Git diff file(s) for \`${range}\`.\n\n`);
+  for (const { diffFile, applicablePrompts } of processableFiles) {
+    strategy.outputProgress(processedCount, processableFiles.length, stream);
+    stream.markdown(`Applying ${applicablePrompts.length} prompt(s) to diff ${diffFile.relativePath}\n`);
+    await processContent(gitDiff.formatDiffForReview(diffFile, range), diffFile.filePath, applicablePrompts, model, token, stream);
+    processedCount++;
+  }
+
+  outputSkippedDiffFiles(skippedFiles, stream);
 }
 
 /**
@@ -321,4 +399,23 @@ export function createErrorResponse(message: string, stream: vscode.ChatResponse
   console.debug(message);
   stream.markdown(message);
   return { errorDetails: { message } };
+}
+
+function outputSkippedDiffFiles(skippedFiles: string[], stream: vscode.ChatResponseStream): void {
+  if (skippedFiles.length === 0) {
+    return;
+  }
+
+  stream.markdown(`\nSkipped ${skippedFiles.length} Git diff file(s):\n`);
+  for (const skippedFile of skippedFiles) {
+    stream.markdown(`  - ${skippedFile}\n`);
+  }
+}
+
+function errorToMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
 }
